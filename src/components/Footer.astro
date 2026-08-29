@@ -2,6 +2,7 @@
 import Logo from './Logo.astro';
 import Reveal from './Reveal.astro';
 import { contact, socials, clients, footerExpertises, serviceSlugs, site } from '../data/site';
+import { url } from '../lib/url';
 
 const year = new Date().getFullYear();
 ---
@@ -54,7 +55,7 @@ const year = new Date().getFullYear();
               const slug = serviceSlugs[label];
               return (
                 <li>
-                  {slug ? <a href={`/projects/expertises/${slug}`}>{label}</a> : <span>{label}</span>}
+                  {slug ? <a href={url(`/projects/expertises/${slug}`)}>{label}</a> : <span>{label}</span>}
                 </li>
               );
             })
@@ -72,10 +73,10 @@ const year = new Date().getFullYear();
       <Reveal class="footer__col footer__col--nav" delay={0.12}>
         <p class="label">Navigation</p>
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/projects">Tous les projets</a></li>
-          <li><a href="/#expertises">Expertises</a></li>
-          <li><a href="/#process">Déroulé d’un projet</a></li>
+          <li><a href={url('/')}>Home</a></li>
+          <li><a href={url('/projects')}>Tous les projets</a></li>
+          <li><a href={url('/#expertises')}>Expertises</a></li>
+          <li><a href={url('/#process')}>Déroulé d’un projet</a></li>
         </ul>
       </Reveal>
     </div>

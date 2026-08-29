@@ -1,8 +1,10 @@
 ---
 import Logo from './Logo.astro';
 import { nav, contact } from '../data/site';
+import { url, stripBase } from '../lib/url';
 
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+// Compared without the deployment base so routes match under a sub-folder too.
+const path = stripBase(Astro.url.pathname);
 
 /** Anchor links only ever "match" on the home page. */
 function isCurrent(href: string) {
@@ -14,7 +16,7 @@ function isCurrent(href: string) {
 
 <header class="header" data-header>
   <div class="header__inner">
-    <a class="header__logo" href="/" aria-label="Accueil — ebs:projects.studio">
+    <a class="header__logo" href={url('/')} aria-label="Accueil — ebs:projects.studio">
       <Logo />
     </a>
 
@@ -23,7 +25,7 @@ function isCurrent(href: string) {
         {
           nav.map((item) => (
             <li>
-              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+              <a href={url(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
                 {item.label}
               </a>
             </li>
@@ -49,7 +51,7 @@ function isCurrent(href: string) {
         {
           nav.map((item) => (
             <li>
-              <a href={item.href}>{item.label}</a>
+              <a href={url(item.href)}>{item.label}</a>
             </li>
           ))
         }

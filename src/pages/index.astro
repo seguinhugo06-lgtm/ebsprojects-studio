@@ -5,6 +5,7 @@ import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import Reveal from '../components/Reveal.astro';
 import { site, process, serviceSlugs } from '../data/site';
+import { url } from '../lib/url';
 
 const projects = await getCollection('projects');
 const byOrder = [...projects].sort((a, b) => a.data.order - b.data.order);
@@ -55,7 +56,7 @@ const showcase = await getEntry('projects', 'epeda-collection-dedicace');
     <div class="wrap">
       <Reveal class="section-head">
         <h2 class="label">Selected projects</h2>
-        <a class="link" href="/projects">
+        <a class="link" href={url('/projects')}>
           Voir tous les projets
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
             <path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.2" />
@@ -68,7 +69,7 @@ const showcase = await getEntry('projects', 'epeda-collection-dedicace');
           featured.map((p, i) => (
             <Reveal delay={(i % 2) * 0.08}>
               <ProjectCard
-                href={`/projects/${p.id}`}
+                href={url(`/projects/${p.id}`)}
                 title={p.data.title}
                 services={p.data.services}
                 image={p.data.cover}
@@ -94,7 +95,7 @@ const showcase = await getEntry('projects', 'epeda-collection-dedicace');
       {
         expertiseBodies.map(({ entry, Content }) => (
           <li class="rail__item">
-            <a class="expertise" href={`/projects/expertises/${entry.id}`}>
+            <a class="expertise" href={url(`/projects/expertises/${entry.id}`)}>
               <p class="label expertise__index">{entry.data.index}</p>
               <h3 class="expertise__title">{entry.data.title}</h3>
               <div class="expertise__body">
@@ -147,7 +148,7 @@ const showcase = await getEntry('projects', 'epeda-collection-dedicace');
       <section class="showcase">
         <div class="wrap">
           <Reveal>
-            <a class="showcase__link" href={`/projects/${showcase.id}`}>
+            <a class="showcase__link" href={url(`/projects/${showcase.id}`)}>
               <div class="showcase__media">
                 <Image
                   src={showcase.data.gallery[0]}
@@ -170,7 +171,7 @@ const showcase = await getEntry('projects', 'epeda-collection-dedicace');
           </Reveal>
 
           <Reveal class="showcase__cta">
-            <a class="pill" href="/projects">
+            <a class="pill" href={url('/projects')}>
               <span class="dot" aria-hidden="true" />
               Voir tous les projets
             </a>

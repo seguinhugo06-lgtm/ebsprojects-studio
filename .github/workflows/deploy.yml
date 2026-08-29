@@ -1,0 +1,58 @@
+name: Déploiement GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Permet aussi de relancer une mise en ligne à la main depuis l'onglet Actions.
+  workflow_dispatch:
+
+# Autorisations minimales nécessaires au déploiement Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule mise en ligne à la fois ; les pushs rapprochés attendent leur tour
+# plutôt que de se doubler.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Construire le site
+        run: npm run build
+        env:
+          # ─────────────────────────────────────────────────────────────
+          # PHASE DE TEST — le site est servi sous un sous-dossier.
+          # Au moment de passer sur ebsprojects.studio, supprimer ces deux
+          # lignes et ajouter un fichier `public/CNAME` contenant :
+          #     ebsprojects.studio
+          # ─────────────────────────────────────────────────────────────
+          ASTRO_SITE: https://seguinhugo06-lgtm.github.io
+          ASTRO_BASE: /ebsprojects-studio
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

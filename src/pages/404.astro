@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
 ---
 
 <Base title="Page introuvable" noindex>
@@ -11,8 +12,8 @@ import Base from '../layouts/Base.astro';
         Cette page n’existe pas ou a été déplacée lors de la refonte du site.
       </p>
       <div class="nf__actions">
-        <a class="pill" href="/"><span class="dot" aria-hidden="true"></span>Retour à l’accueil</a>
-        <a class="link" href="/projects">Voir tous les projets</a>
+        <a class="pill" href={url('/')}><span class="dot" aria-hidden="true"></span>Retour à l’accueil</a>
+        <a class="link" href={url('/projects')}>Voir tous les projets</a>
       </div>
     </div>
   </section>

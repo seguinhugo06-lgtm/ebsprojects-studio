@@ -6,6 +6,7 @@ import Base from '../../layouts/Base.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import Reveal from '../../components/Reveal.astro';
 import { serviceSlugs } from '../../data/site';
+import { url } from '../../lib/url';
 
 export const getStaticPaths = (async () => {
   const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
@@ -39,7 +40,7 @@ const [hero, ...rest] = gallery;
               services.map((s) => (
                 <li>
                   {serviceSlugs[s] ? (
-                    <a href={`/projects/expertises/${serviceSlugs[s]}`}>{s}</a>
+                    <a href={url(`/projects/expertises/${serviceSlugs[s]}`)}>{s}</a>
                   ) : (
                     <span>{s}</span>
                   )}
@@ -135,7 +136,7 @@ const [hero, ...rest] = gallery;
     <div class="wrap">
       <Reveal class="section-head">
         <h2 class="label">More projects</h2>
-        <a class="link" href="/projects">
+        <a class="link" href={url('/projects')}>
           See all works
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
             <path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.2" />
@@ -148,7 +149,7 @@ const [hero, ...rest] = gallery;
           related.map((p, i) => (
             <Reveal delay={i * 0.06}>
               <ProjectCard
-                href={`/projects/${p.id}`}
+                href={url(`/projects/${p.id}`)}
                 title={p.data.title}
                 services={p.data.services}
                 image={p.data.cover}

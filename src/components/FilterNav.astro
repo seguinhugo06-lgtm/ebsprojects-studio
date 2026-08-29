@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { url } from '../lib/url';
 
 interface Props {
   /** Expertise id of the active filter, or null for "all". */
@@ -13,13 +14,13 @@ const expertises = (await getCollection('expertises')).sort((a, b) => a.data.ord
 <nav class="filters" aria-label="Filtrer les projets par expertise">
   <ul>
     <li>
-      <a href="/projects" aria-current={active === null ? 'page' : undefined}>All works</a>
+      <a href={url('/projects')} aria-current={active === null ? 'page' : undefined}>All works</a>
     </li>
     {
       expertises.map((e) => (
         <li>
           <a
-            href={`/projects/expertises/${e.id}`}
+            href={url(`/projects/expertises/${e.id}`)}
             aria-current={active === e.id ? 'page' : undefined}
           >
             {e.data.title}
