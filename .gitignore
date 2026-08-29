@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+.env
+.env.production
+*.log
+
+# Config locale de l'outillage, pas du site
+.claude/

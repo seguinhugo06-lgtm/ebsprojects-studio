@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# `public/_redirects` and `public/_headers` are copied into `dist` at build
+# time and picked up from there; no duplication needed in this file.

@@ -1,0 +1,282 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import Reveal from '../../components/Reveal.astro';
+import { serviceSlugs } from '../../data/site';
+
+export const getStaticPaths = (async () => {
+  const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: {
+      project,
+      // The three that follow, wrapping around the end of the list.
+      related: [1, 2, 3].map((n) => projects[(i + n) % projects.length]),
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { project, related } = Astro.props;
+const { Content } = await render(project);
+const { title, client, location, services, gallery, links } = project.data;
+
+const [hero, ...rest] = gallery;
+---
+
+<Base title={title} description={`${title} — ${services.join(', ')}. Projet réalisé par ebs:projects.studio.`}>
+  <article class="project">
+    {/* ------------------------------------------------------------- Head */}
+    <header class="wrap project__head">
+      <Reveal class="project__meta">
+        <div class="meta">
+          <p class="label">Services</p>
+          <ul class="meta__values">
+            {
+              services.map((s) => (
+                <li>
+                  {serviceSlugs[s] ? (
+                    <a href={`/projects/expertises/${serviceSlugs[s]}`}>{s}</a>
+                  ) : (
+                    <span>{s}</span>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div class="meta">
+          <p class="label">Client</p>
+          <ul class="meta__values"><li><span>{client}</span></li></ul>
+        </div>
+        <div class="meta">
+          <p class="label">Location</p>
+          <ul class="meta__values"><li><span>{location}</span></li></ul>
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.06}>
+        <h1 class="display project__title">{title}</h1>
+      </Reveal>
+    </header>
+
+    {/* ------------------------------------------------------------- Hero */}
+    <div class="wrap">
+      <Reveal class="project__hero">
+        <Image
+          src={hero}
+          alt={title}
+          widths={[760, 1280, 1920]}
+          quality={74}
+          sizes="(max-width: 1360px) 100vw, 1280px"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </Reveal>
+    </div>
+
+    {/* ------------------------------------------------------------- Info */}
+    <section class="wrap project__info">
+      <Reveal class="project__info-label">
+        <p class="label">Info</p>
+      </Reveal>
+      <Reveal class="project__prose" delay={0.06}>
+        <Content />
+      </Reveal>
+      {
+        links.length > 0 && (
+          <Reveal class="project__links" delay={0.12}>
+            <p class="label">Liens</p>
+            <ul>
+              {links.map((l) => (
+                <li>
+                  <a class="link" href={l.url} target="_blank" rel="noopener noreferrer">
+                    {l.label}
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                      <path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.2" />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        )
+      }
+    </section>
+
+    {/* ---------------------------------------------------------- Gallery */}
+    {
+      rest.length > 0 && (
+        <div class="wrap project__gallery">
+          {rest.map((img, i) => (
+            <Reveal>
+              <figure>
+                <Image
+                  src={img}
+                  alt={`${title} — visuel ${i + 2}`}
+                  widths={[760, 1280, 1920]}
+                  quality={74}
+                  sizes="(max-width: 1360px) 100vw, 1280px"
+                  loading="lazy"
+                />
+              </figure>
+            </Reveal>
+          ))}
+        </div>
+      )
+    }
+  </article>
+
+  {/* ---------------------------------------------------------- Related */}
+  <section class="section related">
+    <div class="wrap">
+      <Reveal class="section-head">
+        <h2 class="label">More projects</h2>
+        <a class="link" href="/projects">
+          See all works
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+            <path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </a>
+      </Reveal>
+
+      <div class="related__grid">
+        {
+          related.map((p, i) => (
+            <Reveal delay={i * 0.06}>
+              <ProjectCard
+                href={`/projects/${p.id}`}
+                title={p.data.title}
+                services={p.data.services}
+                image={p.data.cover}
+                sizes="(max-width: 760px) 92vw, (max-width: 1360px) 31vw, 400px"
+              />
+            </Reveal>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .project { padding-top: clamp(7.5rem, 14vh, 10rem); }
+
+  /* --- Head -------------------------------------------------------------- */
+
+  .project__meta {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding-bottom: clamp(2rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .meta .label { margin-bottom: 0.75rem; }
+
+  .meta__values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    font-size: var(--fs-body);
+  }
+
+  .meta__values a {
+    color: var(--fg);
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s var(--ease);
+  }
+  .meta__values a:hover { background-size: 100% 1px; }
+
+  .project__title {
+    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(2rem, 4vw, 3.5rem);
+    max-width: 20ch;
+  }
+
+  /* --- Hero -------------------------------------------------------------- */
+
+  .project__hero {
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--bg-raised);
+  }
+
+  .project__hero :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  /* --- Info -------------------------------------------------------------- */
+
+  .project__info {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding-block: clamp(3.5rem, 7vw, 6rem);
+  }
+
+  .project__prose :global(p) {
+    font-size: var(--fs-lead);
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--fg-muted);
+    max-width: 62ch;
+  }
+  .project__prose :global(p + p) { margin-top: 1em; }
+
+  .project__links .label { margin-bottom: 0.9rem; }
+  .project__links ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+
+  /* --- Gallery ----------------------------------------------------------- */
+
+  .project__gallery {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 2.5vw, 2rem);
+    padding-bottom: var(--section-y);
+  }
+
+  .project__gallery figure {
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--bg-raised);
+  }
+
+  .project__gallery :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  /* --- Related ----------------------------------------------------------- */
+
+  .related { border-top: 1px solid var(--line-soft); }
+
+  .related__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(2rem, 3vw, 2.5rem) var(--gap);
+  }
+
+  @media (max-width: 900px) {
+    .project__meta { grid-template-columns: 1fr 1fr; }
+    .project__info { grid-template-columns: minmax(0, 1fr); }
+    .project__info-label { display: none; }
+    .related__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 560px) {
+    .project__meta { grid-template-columns: minmax(0, 1fr); }
+    .related__grid { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

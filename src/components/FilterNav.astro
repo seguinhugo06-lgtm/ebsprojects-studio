@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props {
+  /** Expertise id of the active filter, or null for "all". */
+  active?: string | null;
+}
+const { active = null } = Astro.props;
+
+const expertises = (await getCollection('expertises')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<nav class="filters" aria-label="Filtrer les projets par expertise">
+  <ul>
+    <li>
+      <a href="/projects" aria-current={active === null ? 'page' : undefined}>All works</a>
+    </li>
+    {
+      expertises.map((e) => (
+        <li>
+          <a
+            href={`/projects/expertises/${e.id}`}
+            aria-current={active === e.id ? 'page' : undefined}
+          >
+            {e.data.title}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .filters {
+    /* Scrolls sideways on narrow screens instead of wrapping into a block. */
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .filters::-webkit-scrollbar { display: none; }
+
+  .filters ul {
+    display: flex;
+    gap: clamp(0.9rem, 2vw, 1.75rem);
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .filters a {
+    display: block;
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--fg-dim);
+    transition: color 0.3s var(--ease);
+  }
+
+  .filters a:hover { color: var(--fg-muted); }
+  .filters a[aria-current='page'] { color: var(--fg); }
+</style>

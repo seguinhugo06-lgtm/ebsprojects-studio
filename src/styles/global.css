@@ -1,0 +1,238 @@
+/* ==========================================================================
+   ebs:projects.studio — design tokens & base styles
+   Palette and type scale reproduced from the original studio site.
+   ========================================================================== */
+
+:root {
+  /* Colour */
+  --bg: #161616;
+  --bg-raised: #1b1b1c;
+  --fg: #ffffff;
+  --fg-muted: rgba(255, 255, 255, 0.56);
+  /* 0.5 keeps small uppercase labels at 5.2:1 on --bg (WCAG AA). */
+  --fg-dim: rgba(255, 255, 255, 0.5);
+  --line: rgba(255, 255, 255, 0.14);
+  --line-soft: rgba(255, 255, 255, 0.08);
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.1);
+
+  /* Type */
+  --font: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --fs-display: clamp(2.75rem, 9vw, 8rem);
+  --fs-title: clamp(1.75rem, 4.4vw, 3.75rem);
+  --fs-lead: clamp(0.95rem, 1.2vw, 1.0625rem);
+  --fs-body: 0.9375rem;
+  --fs-label: 0.8125rem;
+  --tracking-label: 0.115em;
+  --tracking-nav: 0.12em;
+
+  /* Layout */
+  --gutter: clamp(1.25rem, 5.5vw, 5rem);
+  --maxw: 1280px;
+  --gap: clamp(1rem, 2.8vw, 2.5rem);
+  --section-y: clamp(5rem, 11vw, 10rem);
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 0.7s;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  /* Offset for the fixed header when jumping to #anchors */
+  scroll-padding-top: 6rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, p, figure, blockquote { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+img, svg, video { display: block; max-width: 100%; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button { font: inherit; color: inherit; }
+
+::selection { background: var(--fg); color: var(--bg); }
+
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* --- Layout helpers ------------------------------------------------------ */
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--maxw) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section { padding-block: var(--section-y); }
+
+/* --- Typography helpers -------------------------------------------------- */
+
+.label {
+  font-size: var(--fs-label);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.display {
+  font-size: var(--fs-display);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.07em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: var(--fs-title);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.lead {
+  font-size: var(--fs-lead);
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--fg-muted);
+}
+
+/* --- Section heading rule ------------------------------------------------ */
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line-soft);
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+/* --- Inline link with animated underline --------------------------------- */
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--fg);
+  padding-bottom: 2px;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.45s var(--ease);
+}
+.link:hover,
+.link:focus-visible { background-size: 100% 1px; }
+
+.link svg { transition: transform 0.45s var(--ease); }
+.link:hover svg { transform: translateX(3px); }
+
+/* --- Pill button --------------------------------------------------------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.6rem 1.05rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  font-size: var(--fs-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background-color 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+.pill:hover { background: var(--surface-hover); border-color: var(--line); }
+
+.pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+/* --- Scroll reveal ------------------------------------------------------- */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* No JS: never leave content invisible. */
+.no-js [data-reveal] { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- Utilities ----------------------------------------------------------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.6rem 1rem;
+  background: var(--fg);
+  color: var(--bg);
+  border-radius: 4px;
+  transform: translateY(-200%);
+  transition: transform 0.25s var(--ease);
+}
+.skip-link:focus-visible { transform: none; }

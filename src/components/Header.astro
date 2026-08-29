@@ -1,0 +1,265 @@
+---
+import Logo from './Logo.astro';
+import { nav, contact } from '../data/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+/** Anchor links only ever "match" on the home page. */
+function isCurrent(href: string) {
+  if (href.startsWith('/#')) return false;
+  if (href === '/') return path === '/';
+  return path === href || path.startsWith(href + '/');
+}
+---
+
+<header class="header" data-header>
+  <div class="header__inner">
+    <a class="header__logo" href="/" aria-label="Accueil — ebs:projects.studio">
+      <Logo />
+    </a>
+
+    <nav class="header__nav" aria-label="Navigation principale">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="pill header__cta" href={`mailto:${contact.email}`}>
+      <span class="dot" aria-hidden="true"></span>Let’s talk
+    </a>
+
+    <button class="header__burger" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
+      <span class="visually-hidden">Ouvrir le menu</span>
+      <span class="header__burger-bar" aria-hidden="true"></span>
+      <span class="header__burger-bar" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div class="menu" id="mobile-menu" hidden data-menu>
+    <nav aria-label="Navigation mobile">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <a class="menu__mail" href={`mailto:${contact.email}`}>{contact.email}</a>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    transition: background-color 0.4s var(--ease), backdrop-filter 0.4s var(--ease),
+      border-color 0.4s var(--ease), transform 0.45s var(--ease);
+    border-bottom: 1px solid transparent;
+  }
+
+  .header[data-scrolled] {
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom-color: var(--line-soft);
+  }
+
+  /* Slide the bar away while scrolling down, bring it back on scroll up. */
+  .header[data-hidden]:not([data-menu-open]) {
+    transform: translateY(-100%);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: calc(var(--maxw) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding: 1.1rem var(--gutter);
+  }
+
+  .header__logo {
+    flex: none;
+    transition: opacity 0.3s var(--ease);
+  }
+  .header__logo:hover { opacity: 0.7; }
+
+  .header__nav ul {
+    display: flex;
+    gap: clamp(1rem, 2.4vw, 2.25rem);
+  }
+
+  .header__nav a {
+    position: relative;
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-nav);
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    transition: color 0.3s var(--ease);
+  }
+
+  .header__nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s var(--ease);
+  }
+
+  .header__nav a:hover,
+  .header__nav a[aria-current='page'] { color: var(--fg); }
+
+  .header__nav a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .header__nav a[aria-current='page']::after { transform: scaleX(1); }
+
+  .header__cta { flex: none; }
+
+  /* --- Mobile ------------------------------------------------------------ */
+
+  .header__burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin-right: -8px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .header__burger-bar {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    margin-inline: auto;
+    background: var(--fg);
+    transition: transform 0.35s var(--ease), opacity 0.25s var(--ease);
+  }
+
+  .header[data-menu-open] .header__burger-bar:first-child {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+  .header[data-menu-open] .header__burger-bar:last-child {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  .menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.5rem;
+    height: 100dvh;
+    padding: 0 var(--gutter) 6rem;
+    background: var(--bg);
+  }
+
+  .menu[hidden] { display: none; }
+
+  .menu ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .menu a {
+    font-size: clamp(2rem, 11vw, 3.25rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+  }
+
+  .menu__mail {
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  @media (max-width: 860px) {
+    .header__nav,
+    .header__cta { display: none; }
+    .header__burger { display: flex; }
+    .header[data-menu-open] { background: var(--bg); border-bottom-color: transparent; }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+
+  if (header && toggle && menu) {
+    const setMenu = (open: boolean) => {
+      menu.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.querySelector('.visually-hidden')!.textContent = open ? 'Fermer le menu' : 'Ouvrir le menu';
+      header.toggleAttribute('data-menu-open', open);
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+    };
+
+    toggle.addEventListener('click', () => setMenu(menu.hidden));
+    menu.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setMenu(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menu.hidden) {
+        setMenu(false);
+        toggle.focus();
+      }
+    });
+    // A resize past the breakpoint must not leave the page scroll-locked.
+    window.matchMedia('(min-width: 861px)').addEventListener('change', (e) => {
+      if (e.matches && !menu.hidden) setMenu(false);
+    });
+
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      header.toggleAttribute('data-scrolled', y > 12);
+      header.toggleAttribute('data-hidden', y > 240 && y > lastY);
+      lastY = y;
+      ticking = false;
+    };
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(onScroll);
+        }
+      },
+      { passive: true }
+    );
+    onScroll();
+  }
+</script>

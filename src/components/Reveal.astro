@@ -1,0 +1,30 @@
+---
+/**
+ * Wraps children in an element that fades/slides in once it reaches the
+ * viewport. The sweep that adds `.is-visible` lives in Base.astro so a single
+ * listener drives every Reveal on the page.
+ *
+ * `...rest` is spread onto the root on purpose: Astro passes a parent's scoped
+ * style marker (`data-astro-cid-*`) down as a prop, so without the spread any
+ * `class` a page hands to <Reveal> would never match that page's scoped CSS.
+ */
+interface Props {
+  /** Delay in seconds, for staggering siblings. */
+  delay?: number;
+  /** Element to render. Defaults to a plain div. */
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { delay = 0, as: Tag = 'div', class: className, ...rest } = Astro.props;
+---
+
+<Tag
+  data-reveal
+  class={className}
+  style={delay ? `--reveal-delay:${delay}s` : undefined}
+  {...rest}
+>
+  <slot />
+</Tag>

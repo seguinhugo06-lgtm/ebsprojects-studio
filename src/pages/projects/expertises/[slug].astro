@@ -1,0 +1,97 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import ProjectCard from '../../../components/ProjectCard.astro';
+import FilterNav from '../../../components/FilterNav.astro';
+import Reveal from '../../../components/Reveal.astro';
+
+export const getStaticPaths = (async () => {
+  const expertises = await getCollection('expertises');
+  const projects = await getCollection('projects');
+
+  return expertises.map((expertise) => ({
+    params: { slug: expertise.id },
+    props: {
+      expertise,
+      projects: projects
+        .filter((p) => p.data.services.includes(expertise.data.service))
+        .sort((a, b) => a.data.order - b.data.order),
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { expertise, projects } = Astro.props;
+const { Content } = await render(expertise);
+---
+
+<Base
+  title={expertise.data.title}
+  description={`${expertise.data.title} — projets réalisés par ebs:projects.studio, studio de direction artistique à Bordeaux.`}
+>
+  <section class="page">
+    <div class="wrap">
+      <Reveal class="page__head">
+        <p class="label">Expertise {expertise.data.index}</p>
+        <h1 class="title page__title">{expertise.data.title}</h1>
+        <div class="lead page__intro">
+          <Content />
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.05}>
+        <FilterNav active={expertise.id} />
+      </Reveal>
+
+      {
+        projects.length > 0 ? (
+          <div class="grid">
+            {projects.map((p, i) => (
+              <Reveal delay={(i % 2) * 0.08}>
+                <ProjectCard
+                  href={`/projects/${p.id}`}
+                  title={p.data.title}
+                  services={p.data.services}
+                  image={p.data.thumb}
+                  priority={i < 2}
+                />
+              </Reveal>
+            ))}
+          </div>
+        ) : (
+          <Reveal>
+            <p class="lead empty">
+              Aucun projet publié pour cette expertise pour le moment.{' '}
+              <a class="link" href="/projects">
+                Voir tous les projets
+              </a>
+            </p>
+          </Reveal>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page { padding-block: clamp(8rem, 15vh, 11rem) var(--section-y); }
+
+  .page__head { margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .page__head .label { margin-bottom: 1rem; }
+
+  .page__title { margin-bottom: 1.5rem; }
+
+  .page__intro { max-width: 62ch; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2.5rem, 4vw, 3.5rem) var(--gap);
+  }
+
+  .empty { padding-block: 2rem; }
+
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

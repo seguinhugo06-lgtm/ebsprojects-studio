@@ -1,0 +1,197 @@
+---
+import Logo from './Logo.astro';
+import Reveal from './Reveal.astro';
+import { contact, socials, clients, footerExpertises, serviceSlugs, site } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer" id="contact">
+  <div class="wrap">
+    <Reveal>
+      <p class="label footer__eyebrow">Infos &amp; contact</p>
+    </Reveal>
+
+    <div class="footer__top">
+      <Reveal class="footer__identity">
+        <h2 class="title footer__name">{contact.name}</h2>
+        <ul class="footer__direct">
+          <li>
+            <a class="footer__mail" href={`mailto:${contact.email}`}>{contact.email}</a>
+          </li>
+          <li>
+            <a href={`tel:${contact.phoneHref}`}>{contact.phone}</a>
+          </li>
+          <li class="footer__place">{contact.city}, {contact.country}</li>
+        </ul>
+      </Reveal>
+
+      <Reveal class="footer__about" delay={0.08}>
+        <p class="lead">{contact.bio}</p>
+        <ul class="footer__socials">
+          {
+            socials.map((s) => (
+              <li>
+                <a class="link" href={s.url} target="_blank" rel="noopener noreferrer">
+                  {s.label}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.2" />
+                  </svg>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </Reveal>
+    </div>
+
+    <div class="footer__cols">
+      <Reveal class="footer__col">
+        <p class="label">Expertises</p>
+        <ul>
+          {
+            footerExpertises.map((label) => {
+              const slug = serviceSlugs[label];
+              return (
+                <li>
+                  {slug ? <a href={`/projects/expertises/${slug}`}>{label}</a> : <span>{label}</span>}
+                </li>
+              );
+            })
+          }
+        </ul>
+      </Reveal>
+
+      <Reveal class="footer__col" delay={0.06}>
+        <p class="label">Clients</p>
+        <ul>
+          {clients.map((c) => <li><span>{c}</span></li>)}
+        </ul>
+      </Reveal>
+
+      <Reveal class="footer__col footer__col--nav" delay={0.12}>
+        <p class="label">Navigation</p>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/projects">Tous les projets</a></li>
+          <li><a href="/#expertises">Expertises</a></li>
+          <li><a href="/#process">Déroulé d’un projet</a></li>
+        </ul>
+      </Reveal>
+    </div>
+
+    <div class="footer__bottom">
+      <Logo large class="footer__mark" />
+      <p class="footer__legal">
+        <span>© {year} {site.name}</span>
+        <span>Tous droits réservés</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: var(--section-y) 2.5rem;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .footer__eyebrow { margin-bottom: clamp(2rem, 4vw, 3.25rem); }
+
+  .footer__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .footer__name { margin-bottom: 1.75rem; }
+
+  .footer__direct {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: var(--fs-lead);
+  }
+
+  .footer__direct a {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.45s var(--ease);
+  }
+  .footer__direct a:hover { background-size: 100% 1px; }
+
+  .footer__mail { word-break: break-word; }
+  .footer__place { color: var(--fg-muted); }
+
+  .footer__about {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .footer__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .footer__cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(2rem, 4vw, 4rem);
+    padding-block: clamp(3rem, 6vw, 5rem);
+  }
+
+  .footer__col .label { margin-bottom: 1.25rem; }
+
+  .footer__col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer__col li { color: var(--fg-muted); }
+
+  .footer__col a {
+    transition: color 0.3s var(--ease);
+  }
+  .footer__col a:hover { color: var(--fg); }
+
+  .footer__bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-top: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .footer__mark { color: var(--fg); }
+
+  .footer__legal {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+    font-size: var(--fs-label);
+    letter-spacing: 0.04em;
+    color: var(--fg-dim);
+    text-align: right;
+  }
+
+  @media (max-width: 860px) {
+    .footer__top { grid-template-columns: minmax(0, 1fr); }
+    .footer__cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 560px) {
+    .footer__cols { grid-template-columns: minmax(0, 1fr); }
+    .footer__bottom { flex-direction: column; align-items: flex-start; }
+    .footer__legal { align-items: flex-start; text-align: left; }
+  }
+</style>

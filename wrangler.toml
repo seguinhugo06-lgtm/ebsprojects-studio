@@ -1,0 +1,4 @@
+# Cloudflare Pages — used only if you deploy with `npx wrangler pages deploy dist`.
+# The dashboard-connected Git workflow does not need this file.
+name = "ebsprojects-studio"
+pages_build_output_dir = "dist"

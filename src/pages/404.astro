@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page introuvable" noindex>
+  <section class="nf">
+    <div class="wrap">
+      <p class="label">Erreur 404</p>
+      <h1 class="display nf__title">Page<br />introuvable</h1>
+      <p class="lead nf__text">
+        Cette page n’existe pas ou a été déplacée lors de la refonte du site.
+      </p>
+      <div class="nf__actions">
+        <a class="pill" href="/"><span class="dot" aria-hidden="true"></span>Retour à l’accueil</a>
+        <a class="link" href="/projects">Voir tous les projets</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: flex;
+    align-items: center;
+    min-height: 78svh;
+    padding-block: clamp(8rem, 15vh, 11rem) var(--section-y);
+  }
+  .nf__title { margin-block: 1.25rem 1.5rem; }
+  .nf__text { max-width: 44ch; }
+  .nf__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+</style>
