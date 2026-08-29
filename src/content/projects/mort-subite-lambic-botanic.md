@@ -8,15 +8,32 @@ order: 2
 featured: false
 cover: "../../assets/images/mort-subite-04.jpg"
 thumb: "../../assets/images/mort-subite-01.jpg"
-gallery:
+strip:
   - "../../assets/images/mort-subite-01.jpg"
   - "../../assets/images/mort-subite-02.jpg"
   - "../../assets/images/mort-subite-03.jpg"
-  - "../../assets/images/mort-subite-04.jpg"
-  - "../../assets/images/mort-subite-05.jpg"
-  - "../../assets/images/mort-subite-06.jpg"
-  - "../../assets/images/mort-subite-07.gif"
-  - "../../assets/images/mort-subite-08.jpg"
+grid:
+  - src: "../../assets/images/mort-subite-04.jpg"
+    span: full
+    ratio: "1265 / 859"
+  - src: "../../assets/images/mort-subite-05.jpg"
+    span: half
+    ratio: "613 / 613"
+  - src: "../../assets/images/mort-subite-03.jpg"
+    span: half
+    ratio: "613 / 613"
+  - src: "../../assets/images/mort-subite-06.jpg"
+    span: full
+    ratio: "1265 / 820"
+  - src: "../../assets/images/mort-subite-07.gif"
+    span: half
+    ratio: "613 / 681"
+  - src: "../../assets/images/mort-subite-02.jpg"
+    span: half
+    ratio: "613 / 681"
+  - src: "../../assets/images/mort-subite-08.jpg"
+    span: full
+    ratio: "1265 / 949"
 links: []
 ---
 

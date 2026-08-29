@@ -18,7 +18,20 @@ const projects = defineCollection({
       cover: image(),
       /** Alternate crop used in the expertise listings. */
       thumb: image(),
-      gallery: z.array(image()).nonempty(),
+      /** The three images in the clipped, centred band at the top. */
+      strip: z.array(image()).length(3),
+      /** The grid below it. Each slot's span and crop ratio were measured on
+          the original site — they are imposed by the layout, not the image. */
+      grid: z
+        .array(
+          z.object({
+            src: image(),
+            span: z.enum(['full', 'half']),
+            /** CSS aspect-ratio, e.g. "1265 / 859". */
+            ratio: z.string(),
+          })
+        )
+        .nonempty(),
       links: z
         .array(z.object({ label: z.string(), url: z.string().url() }))
         .default([]),

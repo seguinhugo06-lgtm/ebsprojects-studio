@@ -9,14 +9,26 @@ order: 5
 featured: true
 cover: "../../assets/images/terra-delyssa-07.jpg"
 thumb: "../../assets/images/terra-delyssa-01.jpg"
-gallery:
+strip:
   - "../../assets/images/terra-delyssa-01.jpg"
   - "../../assets/images/terra-delyssa-02.jpg"
   - "../../assets/images/terra-delyssa-03.jpg"
-  - "../../assets/images/terra-delyssa-04.jpg"
-  - "../../assets/images/terra-delyssa-05.jpg"
-  - "../../assets/images/terra-delyssa-06.jpg"
-  - "../../assets/images/terra-delyssa-07.jpg"
+grid:
+  - src: "../../assets/images/terra-delyssa-03.jpg"
+    span: half
+    ratio: "613 / 613"
+  - src: "../../assets/images/terra-delyssa-04.jpg"
+    span: half
+    ratio: "613 / 613"
+  - src: "../../assets/images/terra-delyssa-05.jpg"
+    span: full
+    ratio: "1265 / 1154"
+  - src: "../../assets/images/terra-delyssa-06.jpg"
+    span: full
+    ratio: "1265 / 783"
+  - src: "../../assets/images/terra-delyssa-07.jpg"
+    span: full
+    ratio: "1265 / 820"
 links: []
 ---
 

@@ -7,6 +7,8 @@ import type { ImageMetadata } from 'astro';
  *
  *  stacked  — the home page's "Selected projects". Image at 613×476 (1.287),
  *             title below it at 18px in sentence case. No services.
+ *  related  — "More projects" at the foot of a project page: a portrait
+ *             crop at 414x517 (0.800), three across with a 12px gap.
  *  overlay  — the listing and expertise pages. Image at 613×535 (1.146) with
  *             no caption until hover, when the title (15px, uppercase) fades
  *             in bottom-left and the services (15px, sentence case)
@@ -17,7 +19,7 @@ interface Props {
   title: string;
   services: readonly string[];
   image: ImageMetadata;
-  variant?: 'stacked' | 'overlay';
+  variant?: 'stacked' | 'overlay' | 'related';
   /** Stacked cards in "More projects" also list the services. */
   showServices?: boolean;
   /** Rendered width hint for srcset generation. */
@@ -61,7 +63,7 @@ const {
   </div>
 
   {
-    variant === 'stacked' && (
+    variant !== 'overlay' && (
       <div class="card__caption">
         <h3 class="card__title">{title}</h3>
         {showServices && <p class="card__services">{services.join(', ')}</p>}
@@ -81,6 +83,7 @@ const {
 
   .card--stacked .card__media { aspect-ratio: 613 / 476; }
   .card--overlay .card__media { aspect-ratio: 613 / 535; }
+  .card--related .card__media { aspect-ratio: 414 / 517; }
 
   .card__media :global(img) {
     width: 100%;

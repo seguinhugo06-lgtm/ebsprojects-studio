@@ -167,7 +167,7 @@ const showcase = showcaseSlugs
               showcase.map((p, i) => (
                 <a class="slide" href={url(`/projects/${p.id}`)} data-slide aria-hidden={i > 0 ? 'true' : undefined}>
                   <Image
-                    src={p.data.gallery[0]}
+                    src={p.data.strip[0]}
                     alt={p.data.title}
                     widths={[760, 1280, 1920]}
                     quality={74}

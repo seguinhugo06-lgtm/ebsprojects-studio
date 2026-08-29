@@ -9,12 +9,26 @@ order: 4
 featured: false
 cover: "../../assets/images/adidas-pod-01.jpg"
 thumb: "../../assets/images/adidas-pod-04.jpg"
-gallery:
+strip:
   - "../../assets/images/adidas-pod-01.jpg"
   - "../../assets/images/adidas-pod-02.jpg"
   - "../../assets/images/adidas-pod-03.jpg"
-  - "../../assets/images/adidas-pod-04.jpg"
-  - "../../assets/images/adidas-pod-05.jpg"
+grid:
+  - src: "../../assets/images/adidas-pod-04.jpg"
+    span: full
+    ratio: "1265 / 859"
+  - src: "../../assets/images/adidas-pod-05.jpg"
+    span: full
+    ratio: "1265 / 1154"
+  - src: "../../assets/images/adidas-pod-03.jpg"
+    span: full
+    ratio: "1265 / 783"
+  - src: "../../assets/images/adidas-pod-02.jpg"
+    span: full
+    ratio: "1265 / 820"
+  - src: "../../assets/images/adidas-pod-01.jpg"
+    span: full
+    ratio: "1265 / 949"
 links: []
 ---
 

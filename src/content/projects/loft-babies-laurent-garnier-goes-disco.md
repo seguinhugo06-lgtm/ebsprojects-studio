@@ -12,16 +12,35 @@ order: 7
 featured: true
 cover: "../../assets/images/loft-babies-cover.jpg"
 thumb: "../../assets/images/loft-babies-thumb.jpg"
-gallery:
+strip:
   - "../../assets/images/loft-babies-01.jpg"
   - "../../assets/images/loft-babies-02.png"
   - "../../assets/images/loft-babies-03.jpg"
-  - "../../assets/images/loft-babies-04.jpg"
-  - "../../assets/images/loft-babies-05.jpg"
-  - "../../assets/images/loft-babies-06.jpg"
-  - "../../assets/images/loft-babies-07.jpg"
-  - "../../assets/images/loft-babies-08.jpg"
-  - "../../assets/images/loft-babies-09.jpg"
+grid:
+  - src: "../../assets/images/loft-babies-04.jpg"
+    span: half
+    ratio: "613 / 613"
+  - src: "../../assets/images/loft-babies-05.jpg"
+    span: half
+    ratio: "613 / 613"
+  - src: "../../assets/images/loft-babies-06.jpg"
+    span: half
+    ratio: "613 / 681"
+  - src: "../../assets/images/loft-babies-07.jpg"
+    span: half
+    ratio: "613 / 681"
+  - src: "../../assets/images/loft-babies-08.jpg"
+    span: full
+    ratio: "1265 / 949"
+  - src: "../../assets/images/loft-babies-09.jpg"
+    span: full
+    ratio: "1265 / 949"
+  - src: "../../assets/images/loft-babies-01.jpg"
+    span: full
+    ratio: "1265 / 949"
+  - src: "../../assets/images/loft-babies-03.jpg"
+    span: full
+    ratio: "1265 / 949"
 links:
   - label: "Radio FG"
     url: "https://www.radiofg.com/laurent-garnier-en-mix-100-disco-ce-week-end"

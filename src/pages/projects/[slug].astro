@@ -24,28 +24,24 @@ export const getStaticPaths = (async () => {
 
 const { project, related } = Astro.props;
 const { Content } = await render(project);
-const { title, client, location, services, gallery, links } = project.data;
-
-/** The strip runs the gallery twice so it can loop without a visible seam. */
-const strip = [...gallery, ...gallery];
+const { title, client, location, services, strip, grid, links } = project.data;
 ---
 
 <Base title={title} description={`${title} — ${services.join(', ')}. Projet réalisé par ebs:projects.studio.`}>
   <article class="project">
-    {/* --- Full-bleed strip, scrolling left at ~100px/s ------------------ */}
-    <div class="strip" data-strip>
-      <div class="strip__track" data-strip-track>
+    {/* --- Clipped band: three images, centred, bleeding off both sides --- */}
+    <div class="strip">
+      <div class="strip__row">
         {
           strip.map((img, i) => (
             <figure class="strip__item">
               <Image
                 src={img}
-                alt={i < gallery.length ? `${title} — visuel ${i + 1}` : ''}
-                widths={[480, 960]}
+                alt={`${title} — visuel ${i + 1}`}
+                widths={[480, 960, 1308]}
                 quality={72}
-                sizes="(max-width: 809px) 60vw, 34vw"
+                sizes="45vw"
                 loading={i < 3 ? 'eager' : 'lazy'}
-                aria-hidden={i >= gallery.length ? 'true' : undefined}
               />
             </figure>
           ))
@@ -108,18 +104,18 @@ const strip = [...gallery, ...gallery];
       }
     </section>
 
-    {/* --- Gallery ------------------------------------------------------- */}
-    <div class="wrap gallery">
+    {/* --- Grid: spans and crop ratios as measured on the original ------ */}
+    <div class="wrap grid">
       {
-        gallery.map((img, i) => (
-          <Reveal class="gallery__cell">
-            <figure>
+        grid.map((slot, i) => (
+          <Reveal class={`grid__cell grid__cell--${slot.span}`}>
+            <figure style={`aspect-ratio:${slot.ratio}`}>
               <Image
-                src={img}
+                src={slot.src}
                 alt={`${title} — visuel ${i + 1}`}
                 widths={[760, 1280, 1920]}
                 quality={74}
-                sizes="(max-width: 809px) 92vw, 46vw"
+                sizes={slot.span === 'full' ? '(max-width: 809px) 92vw, 92vw' : '(max-width: 809px) 92vw, 46vw'}
                 loading="lazy"
               />
             </figure>
@@ -151,7 +147,7 @@ const strip = [...gallery, ...gallery];
                 title={p.data.title}
                 services={p.data.services}
                 image={p.data.cover}
-                variant="stacked"
+                variant="related"
                 showServices
                 sizes="(max-width: 809px) 92vw, 31vw"
               />
@@ -169,39 +165,31 @@ const strip = [...gallery, ...gallery];
   /* --- Strip -------------------------------------------------------------- */
 
   .strip {
-    overflow: hidden;
+    /* The row is wider than the page and is clipped on both sides. */
+    overflow: clip;
     width: 100%;
   }
 
-  .strip__track {
+  .strip__row {
     display: flex;
-    gap: 4px;
-    width: max-content;
-    animation: strip-scroll var(--strip-duration, 60s) linear infinite;
-  }
-
-  .strip:hover .strip__track { animation-play-state: paused; }
-
-  @keyframes strip-scroll {
-    to { transform: translateX(-50%); }
+    justify-content: center;
+    gap: 20px;
+    /* Wider than the page: centring makes it bleed off both sides equally. */
+    width: 100%;
   }
 
   .strip__item {
     margin: 0;
-    height: clamp(220px, 30vw, 440px);
     flex: none;
+    width: clamp(240px, 45.4vw, 900px);
+    aspect-ratio: 654 / 429;
+    background: var(--bg-raised);
   }
 
   .strip__item :global(img) {
+    width: 100%;
     height: 100%;
-    width: auto;
-    max-width: none;
     object-fit: cover;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .strip { overflow-x: auto; }
-    .strip__track { animation: none; }
   }
 
   /* --- Meta --------------------------------------------------------------- */
@@ -261,24 +249,27 @@ const strip = [...gallery, ...gallery];
   }
   .meta__prose :global(p + p) { margin-top: 1em; }
 
-  /* --- Gallery ------------------------------------------------------------ */
+  /* --- Grid --------------------------------------------------------------- */
 
-  .gallery {
+  .grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(1rem, 2.2vw, 2rem);
+    gap: 40px;
     padding-bottom: var(--section-y);
   }
 
-  .gallery figure {
+  .grid__cell--full { grid-column: 1 / -1; }
+
+  .grid figure {
     margin: 0;
     overflow: hidden;
     background: var(--bg-raised);
   }
 
-  .gallery :global(img) {
+  .grid :global(img) {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
   }
 
   /* --- Related ------------------------------------------------------------ */
@@ -288,7 +279,7 @@ const strip = [...gallery, ...gallery];
   .related__grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 40px;
+    gap: 12px;
   }
 
   @media (max-width: 1199.98px) {
@@ -299,33 +290,8 @@ const strip = [...gallery, ...gallery];
 
   @media (max-width: 809.98px) {
     .meta { grid-template-columns: minmax(0, 1fr); }
-    .gallery { grid-template-columns: minmax(0, 1fr); }
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    .grid__cell--full { grid-column: auto; }
     .related__grid { grid-template-columns: minmax(0, 1fr); }
   }
 </style>
-
-<script>
-  /* The strip holds the gallery twice, so translating by -50% lands exactly
-     back at the start. The duration is derived from the measured width so the
-     speed stays at ~100px/s whatever the project's image count. */
-  const init = () => {
-  const strip = document.querySelector<HTMLElement>('[data-strip]');
-  const track = document.querySelector<HTMLElement>('[data-strip-track]');
-
-  if (strip && track) {
-    const SPEED = 100;
-
-    const setDuration = () => {
-      const half = track.scrollWidth / 2;
-      if (half > 0) strip.style.setProperty('--strip-duration', `${half / SPEED}s`);
-    };
-
-    setDuration();
-    window.addEventListener('load', setDuration, { once: true });
-    window.addEventListener('resize', setDuration, { passive: true });
-  }
-  };
-
-  init();
-  document.addEventListener('astro:page-load', init);
-</script>

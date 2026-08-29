@@ -9,11 +9,23 @@ order: 3
 featured: false
 cover: "../../assets/images/beer-factory-02.jpg"
 thumb: "../../assets/images/beer-factory-02.jpg"
-gallery:
+strip:
   - "../../assets/images/beer-factory-01.jpg"
   - "../../assets/images/beer-factory-02.jpg"
   - "../../assets/images/beer-factory-03.jpg"
-  - "../../assets/images/beer-factory-04.jpg"
+grid:
+  - src: "../../assets/images/beer-factory-02.jpg"
+    span: full
+    ratio: "1265 / 859"
+  - src: "../../assets/images/beer-factory-03.jpg"
+    span: half
+    ratio: "613 / 613"
+  - src: "../../assets/images/beer-factory-04.jpg"
+    span: half
+    ratio: "613 / 613"
+  - src: "../../assets/images/beer-factory-01.jpg"
+    span: full
+    ratio: "1265 / 1154"
 links:
   - label: "Alamy"
     url: "https://www.alamy.com/beer-factory-taste-of-paris-le-grand-palais-paris-france-image185795758.html"
