@@ -129,9 +129,11 @@ le domaine.
 ## Notes de migration
 
 - Les URL des projets et des expertises sont identiques à l'ancien site, sauf
-  celles qui contenaient un accent. Ces quatre-là sont redirigées en 301 via
-  `public/_redirects` :
-  `édition`, `identité-visuelle`, `signalétique`, `epeda-collection-dédicace`.
+  quatre qui contenaient un accent : `édition`, `identité-visuelle`,
+  `signalétique`, `epeda-collection-dédicace`. Elles sont redirigées vers leur
+  version sans accent par des pages générées au build (avec `<link rel=canonical>`,
+  donc sans perte de référencement). `public/_redirects` fait la même chose en
+  vraies 301 sur Netlify et Cloudflare, mais GitHub Pages ignore ce fichier.
 - Les images sources récupérées depuis Framer sont conservées en pleine
   définition dans `src/assets/images/` (~74 Mo). Elles ne sont jamais servies
   telles quelles : le build en produit des versions WebP redimensionnées.
