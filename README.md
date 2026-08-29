@@ -119,10 +119,12 @@ Tout est en haut de `src/styles/global.css`, dans le bloc `:root`.
 
 ## Mise en ligne
 
-Voir `HEBERGEMENT.md` pour la procédure complète et le choix de l'hébergeur.
+Voir `HEBERGEMENT.md` pour la procédure complète et le choix de l’hébergeur.
 
-En résumé : pousser sur GitHub, connecter le dépôt à Cloudflare Pages ou
-Netlify, commande de build `npm run build`, dossier publié `dist`.
+En résumé : le site est hébergé par GitHub Pages et se republie tout seul à
+chaque `git push` sur `main`. Le site de test tourne sur
+<https://seguinhugo06-lgtm.github.io/ebsprojects-studio/> ; il reste à basculer
+le domaine.
 
 ## Notes de migration
 
