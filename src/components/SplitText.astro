@@ -29,6 +29,10 @@ interface Props {
   /** Phrases rendered brighter than the surrounding copy. */
   emphasis?: readonly string[];
   class?: string;
+  /* Astro hands a parent's scoped-style marker (`data-astro-cid-*`) down as a
+     prop. Without spreading it onto the root, any `class` a page passes here
+     would never match that page's own CSS. */
+  [key: string]: unknown;
 }
 
 const {
@@ -38,6 +42,7 @@ const {
   indexOffset = 0,
   emphasis = [],
   class: className,
+  ...rest
 } = Astro.props;
 
 const cfg = reveal[preset];
@@ -107,6 +112,7 @@ const style = [
   data-tokenization={cfg.tokenization}
   data-on-mount={cfg.onMount ? '' : undefined}
   style={style}
+  {...rest}
   set:html={html}
 />
 
