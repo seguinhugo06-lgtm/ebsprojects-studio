@@ -552,6 +552,14 @@ const showcase = showcaseSlugs
 </style>
 
 <script>
+  /** Timers must not survive a client-side navigation. */
+  let sliderTimer = 0;
+  document.addEventListener('astro:before-swap', () => {
+    if (sliderTimer) clearInterval(sliderTimer);
+    sliderTimer = 0;
+  });
+
+  const init = () => {
   /* --- Expertises rail: wheel + arrow navigation --------------------------- */
   const rail = document.querySelector<HTMLElement>('[data-rail]');
   const prev = document.querySelector<HTMLButtonElement>('[data-rail-prev]');
@@ -603,7 +611,6 @@ const showcase = showcaseSlugs
     const dots = [...slider.querySelectorAll<HTMLButtonElement>('[data-slider-dot]')];
     const INTERVAL = 5000;
     let index = 0;
-    let timer = 0;
 
     const go = (i: number) => {
       index = (i + slides.length) % slides.length;
@@ -617,11 +624,11 @@ const showcase = showcaseSlugs
     const play = () => {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       stop();
-      timer = window.setInterval(() => go(index + 1), INTERVAL);
+      sliderTimer = window.setInterval(() => go(index + 1), INTERVAL);
     };
     const stop = () => {
-      if (timer) clearInterval(timer);
-      timer = 0;
+      if (sliderTimer) clearInterval(sliderTimer);
+      sliderTimer = 0;
     };
 
     dots.forEach((d, n) =>
@@ -639,4 +646,8 @@ const showcase = showcaseSlugs
     go(0);
     play();
   }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>

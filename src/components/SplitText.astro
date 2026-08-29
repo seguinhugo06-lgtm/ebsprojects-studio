@@ -26,6 +26,8 @@ interface Props {
   preset?: RevealName;
   /** Continue the stagger from an earlier block (multi-line headings). */
   indexOffset?: number;
+  /** Phrases rendered brighter than the surrounding copy. */
+  emphasis?: readonly string[];
   class?: string;
 }
 
@@ -34,6 +36,7 @@ const {
   as: Tag = 'span',
   preset = 'heading',
   indexOffset = 0,
+  emphasis = [],
   class: className,
 } = Astro.props;
 
@@ -42,8 +45,18 @@ const cfg = reveal[preset];
 const esc = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-const tok = (content: string, i: number) =>
-  `<span class="tok" style="--i:${i}">${esc(content)}</span>`;
+/** Character ranges to render brighter, resolved once against the full text. */
+const ranges: Array<[number, number]> = [];
+for (const phrase of emphasis) {
+  const at = text.indexOf(phrase);
+  if (at !== -1) ranges.push([at, at + phrase.length]);
+}
+const isStrong = (offset: number) => ranges.some(([a, b]) => offset >= a && offset < b);
+
+const tok = (content: string, i: number, offset: number) => {
+  const cls = isStrong(offset) ? 'tok tok--strong' : 'tok';
+  return `<span class="${cls}" style="--i:${i}">${esc(content)}</span>`;
+};
 
 /** `line` staggers per visual line, so indices are assigned in the browser. */
 const perLine = cfg.tokenization === 'line';
@@ -52,15 +65,27 @@ const words = text.split(' ');
 let html: string;
 let i = indexOffset;
 
+/** Running character offset into `text`, used to resolve the emphasis ranges. */
+let offset = 0;
+
 if (cfg.tokenization === 'element') {
-  html = tok(text, indexOffset);
+  html = tok(text, indexOffset, 0);
 } else if (cfg.tokenization === 'word') {
-  html = words.map((w, wi) => tok(w, wi + indexOffset)).join(' ');
+  html = words
+    .map((w, wi) => {
+      const out = tok(w, wi + indexOffset, offset);
+      offset += w.length + 1;
+      return out;
+    })
+    .join(' ');
 } else {
   html = words
     .map((w) => {
       const nowrap = w.length <= 12 ? ' style="white-space:nowrap"' : '';
-      const chars = [...w].map((ch) => tok(ch, perLine ? 0 : i++)).join('');
+      const chars = [...w]
+        .map((ch, ci) => tok(ch, perLine ? 0 : i++, offset + ci))
+        .join('');
+      offset += w.length + 1;
       return `<span class="word"${nowrap}>${chars}</span>`;
     })
     .join(' ');
@@ -103,6 +128,8 @@ const style = [
        and promoting that many elements to their own layer costs more than the
        transition saves. Browsers already composite opacity and transform. */
   }
+
+  .split :global(.tok--strong) { color: var(--fg); }
 
   .split.is-visible :global(.tok) {
     opacity: 1;

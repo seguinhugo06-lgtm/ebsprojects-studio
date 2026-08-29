@@ -89,8 +89,6 @@ function isCurrent(href: string) {
     justify-content: space-between;
     gap: 1.5rem;
     width: 100%;
-    max-width: calc(var(--maxw) + var(--gutter) * 2);
-    margin-inline: auto;
     padding: 1.1rem var(--gutter);
   }
 
@@ -213,6 +211,7 @@ function isCurrent(href: string) {
 </style>
 
 <script>
+  const init = () => {
   const header = document.querySelector<HTMLElement>('[data-header]');
   const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const menu = document.querySelector<HTMLElement>('[data-menu]');
@@ -264,4 +263,8 @@ function isCurrent(href: string) {
     );
     onScroll();
   }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>

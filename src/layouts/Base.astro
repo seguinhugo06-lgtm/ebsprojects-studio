@@ -3,6 +3,7 @@ import '@fontsource-variable/inter';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { ClientRouter } from 'astro:transitions';
 import { site, contact, socials } from '../data/site';
 import { url } from '../lib/url';
 
@@ -75,6 +76,9 @@ const jsonLd = {
 
     <link rel="sitemap" href={url('/sitemap-index.xml')} />
 
+    {/* Cross-fades between pages, as on the original site. */}
+    <ClientRouter />
+
     <script is:inline>
       // Flip before paint so reveal animations only apply when JS can undo them.
       document.documentElement.classList.remove('no-js');
@@ -107,6 +111,10 @@ const jsonLd = {
        * viewport) would leave the page blank for good.
        */
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let teardownPrevious: (() => void) | null = null;
+
+      const init = () => {
+      teardownPrevious?.();
       const all = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
 
       /** Assign one stagger index per visual line. */
@@ -182,6 +190,7 @@ const jsonLd = {
 
         window.addEventListener('scroll', onEvent, { passive: true });
         window.addEventListener('resize', onEvent, { passive: true });
+        teardownPrevious = teardown;
         sweep();
         // Late fonts and images shift layout; re-measure lines and re-check.
         window.addEventListener('load', () => {
@@ -189,6 +198,11 @@ const jsonLd = {
           onEvent();
         }, { once: true });
       }
+      };
+
+      init();
+      // ClientRouter swaps the DOM without reloading, so re-bind each time.
+      document.addEventListener('astro:page-load', init);
     </script>
   </body>
 </html>

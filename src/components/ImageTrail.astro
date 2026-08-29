@@ -89,6 +89,7 @@ const sources = projects.map((p) => ({ img: p.data.cover, alt: p.data.title }));
 </style>
 
 <script>
+  const init = () => {
   const host = document.querySelector<HTMLElement>('[data-trail]');
   const pool = document.querySelector<HTMLElement>('[data-trail-pool]');
 
@@ -148,4 +149,8 @@ const sources = projects.map((p) => ({ img: p.data.cover, alt: p.data.title }));
       { passive: true }
     );
   }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>

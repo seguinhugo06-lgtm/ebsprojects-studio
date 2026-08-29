@@ -26,17 +26,39 @@ const { project, related } = Astro.props;
 const { Content } = await render(project);
 const { title, client, location, services, gallery, links } = project.data;
 
-const [hero, ...rest] = gallery;
+/** The strip runs the gallery twice so it can loop without a visible seam. */
+const strip = [...gallery, ...gallery];
 ---
 
 <Base title={title} description={`${title} — ${services.join(', ')}. Projet réalisé par ebs:projects.studio.`}>
   <article class="project">
-    {/* ------------------------------------------------------------- Head */}
-    <header class="wrap project__head">
-      <Reveal class="project__meta" data-on-mount>
-        <div class="meta">
+    {/* --- Full-bleed strip, scrolling left at ~100px/s ------------------ */}
+    <div class="strip" data-strip>
+      <div class="strip__track" data-strip-track>
+        {
+          strip.map((img, i) => (
+            <figure class="strip__item">
+              <Image
+                src={img}
+                alt={i < gallery.length ? `${title} — visuel ${i + 1}` : ''}
+                widths={[480, 960]}
+                quality={72}
+                sizes="(max-width: 809px) 60vw, 34vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                aria-hidden={i >= gallery.length ? 'true' : undefined}
+              />
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+
+    {/* --- Meta block ---------------------------------------------------- */}
+    <section class="wrap meta">
+      <Reveal class="meta__side" data-on-mount>
+        <div class="meta__group">
           <p class="label">Services</p>
-          <ul class="meta__values">
+          <ul>
             {
               services.map((s) => (
                 <li>
@@ -50,95 +72,68 @@ const [hero, ...rest] = gallery;
             }
           </ul>
         </div>
-        <div class="meta">
+        <div class="meta__group">
           <p class="label">Client</p>
-          <ul class="meta__values">
-            <li><SplitText text={client} preset="meta2" /></li>
-          </ul>
+          <ul><li><span>{client}</span></li></ul>
         </div>
-        <div class="meta">
+        <div class="meta__group">
           <p class="label">Location</p>
-          <ul class="meta__values">
-            <li><SplitText text={location} preset="meta3" /></li>
-          </ul>
+          <ul><li><span>{location}</span></li></ul>
         </div>
       </Reveal>
 
-      <SplitText as="h1" text={title} preset="meta4" class="display project__title" />
-    </header>
+      <div class="meta__main">
+        <SplitText as="h1" text={title} preset="meta2" class="meta__title" />
+        <Reveal class="meta__info" data-on-mount>
+          <p class="label">Info</p>
+          <div class="meta__prose"><Content /></div>
+        </Reveal>
+      </div>
 
-    {/* ------------------------------------------------------------- Hero */}
-    <div class="wrap">
-      <Reveal class="project__hero">
-        <Image
-          src={hero}
-          alt={title}
-          widths={[760, 1280, 1920]}
-          quality={74}
-          sizes="(max-width: 1360px) 100vw, 1280px"
-          loading="eager"
-          fetchpriority="high"
-        />
-      </Reveal>
-    </div>
-
-    {/* ------------------------------------------------------------- Info */}
-    <section class="wrap project__info">
-      <Reveal class="project__info-label">
-        <p class="label">Info</p>
-      </Reveal>
-      <Reveal class="project__prose" delay={0.06}>
-        <Content />
-      </Reveal>
       {
         links.length > 0 && (
-          <Reveal class="project__links" delay={0.12}>
-            <p class="label">Liens</p>
-            <ul>
-              {links.map((l) => (
-                <li>
-                  <a class="link" href={l.url} target="_blank" rel="noopener noreferrer">
-                    {l.label}
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                      <path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.2" />
-                    </svg>
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <Reveal class="meta__side meta__side--right" data-on-mount>
+            <div class="meta__group">
+              <p class="label">Liens</p>
+              <ul>
+                {links.map((l) => (
+                  <li>
+                    <a href={l.url} target="_blank" rel="noopener noreferrer">{l.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </Reveal>
         )
       }
     </section>
 
-    {/* ---------------------------------------------------------- Gallery */}
-    {
-      rest.length > 0 && (
-        <div class="wrap project__gallery">
-          {rest.map((img, i) => (
-            <Reveal>
-              <figure>
-                <Image
-                  src={img}
-                  alt={`${title} — visuel ${i + 2}`}
-                  widths={[760, 1280, 1920]}
-                  quality={74}
-                  sizes="(max-width: 1360px) 100vw, 1280px"
-                  loading="lazy"
-                />
-              </figure>
-            </Reveal>
-          ))}
-        </div>
-      )
-    }
+    {/* --- Gallery ------------------------------------------------------- */}
+    <div class="wrap gallery">
+      {
+        gallery.map((img, i) => (
+          <Reveal class="gallery__cell">
+            <figure>
+              <Image
+                src={img}
+                alt={`${title} — visuel ${i + 1}`}
+                widths={[760, 1280, 1920]}
+                quality={74}
+                sizes="(max-width: 809px) 92vw, 46vw"
+                loading="lazy"
+              />
+            </figure>
+          </Reveal>
+        ))
+      }
+    </div>
   </article>
 
-  {/* ---------------------------------------------------------- Related */}
+  {/* --- Related --------------------------------------------------------- */}
   <section class="section related">
     <div class="wrap">
       <Reveal class="section-head">
-        <h2 class="label">More projects</h2>
+        <SplitText as="h2" text="More projects" class="label" />
         <a class="link" href={url('/projects')}>
           See all works
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -156,7 +151,7 @@ const [hero, ...rest] = gallery;
                 title={p.data.title}
                 services={p.data.services}
                 image={p.data.cover}
-                sizes="(max-width: 760px) 92vw, (max-width: 1360px) 31vw, 400px"
+                sizes="(max-width: 809px) 92vw, 31vw"
               />
             </Reveal>
           ))
@@ -167,102 +162,124 @@ const [hero, ...rest] = gallery;
 </Base>
 
 <style>
-  .project { padding-top: clamp(7.5rem, 14vh, 10rem); }
+  .project { padding-top: 4.5rem; }
 
-  /* --- Head -------------------------------------------------------------- */
+  /* --- Strip -------------------------------------------------------------- */
 
-  .project__meta {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: clamp(1.5rem, 3vw, 3rem);
-    padding-bottom: clamp(2rem, 4vw, 3rem);
-    border-bottom: 1px solid var(--line-soft);
+  .strip {
+    overflow: hidden;
+    width: 100%;
   }
 
-  .meta .label { margin-bottom: 0.75rem; }
-
-  .meta__values {
+  .strip__track {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1rem;
-    font-size: var(--fs-body);
+    gap: 4px;
+    width: max-content;
+    animation: strip-scroll var(--strip-duration, 60s) linear infinite;
   }
 
-  .meta__values a {
-    color: var(--fg);
+  .strip:hover .strip__track { animation-play-state: paused; }
+
+  @keyframes strip-scroll {
+    to { transform: translateX(-50%); }
+  }
+
+  .strip__item {
+    margin: 0;
+    height: clamp(220px, 30vw, 440px);
+    flex: none;
+  }
+
+  .strip__item :global(img) {
+    height: 100%;
+    width: auto;
+    max-width: none;
+    object-fit: cover;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .strip { overflow-x: auto; }
+    .strip__track { animation: none; }
+  }
+
+  /* --- Meta --------------------------------------------------------------- */
+
+  .meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding-block: clamp(2.5rem, 5vw, 4rem) clamp(3rem, 6vw, 5.5rem);
+  }
+
+  .meta__side {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .meta__side--right { text-align: right; }
+
+  .meta__group .label { margin-bottom: 0.85rem; }
+
+  .meta__group ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    font-size: 0.9375rem;
+  }
+
+  .meta__group a {
     background-image: linear-gradient(currentColor, currentColor);
     background-size: 0% 1px;
     background-position: 0 100%;
     background-repeat: no-repeat;
     transition: background-size 0.4s var(--ease);
   }
-  .meta__values a:hover { background-size: 100% 1px; }
+  .meta__side--right .meta__group a { background-position: 100% 100%; }
+  .meta__group a:hover { background-size: 100% 1px; }
 
-  .project__title {
-    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(2rem, 4vw, 3.5rem);
-    max-width: 20ch;
+  /* The project title is set at body scale here, not as a display heading. */
+  .meta__title {
+    display: block;
+    font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin-bottom: clamp(2rem, 4vw, 3.25rem);
   }
 
-  /* --- Hero -------------------------------------------------------------- */
+  .meta__info .label { margin-bottom: 0.6rem; }
 
-  .project__hero {
-    overflow: hidden;
-    border-radius: 2px;
-    background: var(--bg-raised);
-  }
-
-  .project__hero :global(img) {
-    width: 100%;
-    height: auto;
-  }
-
-  /* --- Info -------------------------------------------------------------- */
-
-  .project__info {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    gap: clamp(1.5rem, 3vw, 3rem);
-    padding-block: clamp(3.5rem, 7vw, 6rem);
-  }
-
-  .project__prose :global(p) {
-    font-size: var(--fs-lead);
+  .meta__prose :global(p) {
+    font-size: 0.9375rem;
     font-weight: 300;
-    line-height: 1.75;
+    line-height: 1.6;
     color: var(--fg-muted);
-    max-width: 62ch;
+    max-width: 64ch;
   }
-  .project__prose :global(p + p) { margin-top: 1em; }
+  .meta__prose :global(p + p) { margin-top: 1em; }
 
-  .project__links .label { margin-bottom: 0.9rem; }
-  .project__links ul {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    align-items: flex-start;
-  }
+  /* --- Gallery ------------------------------------------------------------ */
 
-  /* --- Gallery ----------------------------------------------------------- */
-
-  .project__gallery {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(1rem, 2.5vw, 2rem);
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 2.2vw, 2rem);
     padding-bottom: var(--section-y);
   }
 
-  .project__gallery figure {
+  .gallery figure {
+    margin: 0;
     overflow: hidden;
-    border-radius: 2px;
     background: var(--bg-raised);
   }
 
-  .project__gallery :global(img) {
+  .gallery :global(img) {
     width: 100%;
     height: auto;
   }
 
-  /* --- Related ----------------------------------------------------------- */
+  /* --- Related ------------------------------------------------------------ */
 
   .related { border-top: 1px solid var(--line-soft); }
 
@@ -272,15 +289,41 @@ const [hero, ...rest] = gallery;
     gap: clamp(2rem, 3vw, 2.5rem) var(--gap);
   }
 
-  @media (max-width: 900px) {
-    .project__meta { grid-template-columns: 1fr 1fr; }
-    .project__info { grid-template-columns: minmax(0, 1fr); }
-    .project__info-label { display: none; }
-    .related__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 1199.98px) {
+    .meta { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+    .meta__side--right { grid-column: 1 / -1; text-align: left; }
+    .meta__side--right .meta__group a { background-position: 0 100%; }
   }
 
-  @media (max-width: 560px) {
-    .project__meta { grid-template-columns: minmax(0, 1fr); }
+  @media (max-width: 809.98px) {
+    .meta { grid-template-columns: minmax(0, 1fr); }
+    .gallery { grid-template-columns: minmax(0, 1fr); }
     .related__grid { grid-template-columns: minmax(0, 1fr); }
   }
 </style>
+
+<script>
+  /* The strip holds the gallery twice, so translating by -50% lands exactly
+     back at the start. The duration is derived from the measured width so the
+     speed stays at ~100px/s whatever the project's image count. */
+  const init = () => {
+  const strip = document.querySelector<HTMLElement>('[data-strip]');
+  const track = document.querySelector<HTMLElement>('[data-strip-track]');
+
+  if (strip && track) {
+    const SPEED = 100;
+
+    const setDuration = () => {
+      const half = track.scrollWidth / 2;
+      if (half > 0) strip.style.setProperty('--strip-duration', `${half / SPEED}s`);
+    };
+
+    setDuration();
+    window.addEventListener('load', setDuration, { once: true });
+    window.addEventListener('resize', setDuration, { passive: true });
+  }
+  };
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>

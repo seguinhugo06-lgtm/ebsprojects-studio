@@ -18,7 +18,13 @@ import { url } from '../lib/url';
       </Reveal>
 
       <Reveal class="footer__col footer__col--bio" delay={0.06}>
-        <SplitText as="p" text={contact.bio} preset="body" class="footer__bio" />
+        <SplitText
+          as="p"
+          text={contact.bio}
+          preset="body"
+          emphasis={contact.bioEmphasis}
+          class="footer__bio"
+        />
       </Reveal>
 
       <Reveal class="footer__col" delay={0.12}>

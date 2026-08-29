@@ -29,6 +29,13 @@ export const contact = {
   city: 'Bordeaux',
   country: 'France',
   bio: `Directrice artistique et Designer Graphique indépendante à Bordeaux. À travers mon studio, je crée des projets visuels sur mesure pour marques et institutions, en privilégiant sens, esthétique et impact. Chaque projet est une aventure humaine et créative. Pour collaborer ou échanger sur votre projet, n’hésitez pas à me contacter.`,
+  /** Phrases set brighter than the rest of the paragraph, as on the original. */
+  bioEmphasis: [
+    'projets visuels sur mesure',
+    'sens, esthétique et impact',
+    'aventure humaine et créative',
+    'collaborer ou échanger sur votre projet',
+  ],
 } as const;
 
 /** Order matches the footer bar on the original site. */
