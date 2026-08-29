@@ -32,7 +32,11 @@
   --gap: clamp(1rem, 2.8vw, 2.5rem);
   --section-y: clamp(5rem, 11vw, 10rem);
 
-  /* Motion */
+  /* Motion — springs reproduced from the original Framer bundle.
+     `smooth` is a critically damped spring (bounce: 0); `settle` is the
+     overdamped one used for section reveals (stiffness 415, damping 60). */
+  --spring-smooth: linear(0.0000, 0.0532, 0.1684, 0.3024, 0.4328, 0.5490, 0.6474, 0.7279, 0.7923, 0.8429, 0.8820, 0.9119, 0.9346, 0.9516, 0.9644, 0.9739, 0.9809, 0.9861, 0.9899, 0.9927, 0.9947, 0.9962, 0.9972, 0.9980, 0.9986, 0.9990);
+  --spring-settle: linear(0.0000, 0.1365, 0.3300, 0.4909, 0.6147, 0.7088, 0.7799, 0.8336, 0.8743, 0.9050, 0.9282, 0.9457, 0.9590, 0.9690, 0.9766, 0.9823, 0.9866, 0.9899, 0.9924, 0.9942, 0.9956, 0.9967, 0.9975, 0.9981, 0.9986, 0.9989);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 0.7s;
 }
@@ -185,19 +189,51 @@ button { font: inherit; color: inherit; }
   flex: none;
 }
 
-/* --- Scroll reveal ------------------------------------------------------- */
+/* --- Scroll reveal ------------------------------------------------------
+   Four block-level variants, matching the original build:
+     .r-fade  opacity 0 -> 1                    (project cards)
+     .r-20    opacity 0 -> 1, y 20 -> 0         (expertise cards)
+     .r-30    opacity 0 -> 1, y 30 -> 0         (process steps)
+     .r-sect  opacity .2 -> 1, y 40 -> 0, perspective 1200 (section wrappers)
+   -------------------------------------------------------------------- */
 
 [data-reveal] {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
-  transition-delay: var(--reveal-delay, 0s);
-  will-change: opacity, transform;
+  --rv-from-opacity: 0;
+  --rv-from-y: 0px;
+  --rv-dur: 1.4s;
+  --rv-delay: 0.2s;
+  --rv-spring: var(--spring-smooth);
+  opacity: var(--rv-from-opacity);
+  transform: translateY(var(--rv-from-y));
+  transition:
+    opacity var(--rv-dur) var(--rv-spring) var(--rv-delay),
+    transform var(--rv-dur) var(--rv-spring) var(--rv-delay);
 }
+
 [data-reveal].is-visible {
   opacity: 1;
   transform: none;
 }
+
+/* Text tokens carry their own transition; the wrapper must not fade too. */
+[data-reveal].split {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.r-20 { --rv-from-y: 20px; }
+.r-30 { --rv-from-y: 30px; }
+
+.r-sect {
+  --rv-from-opacity: 0.2;
+  --rv-from-y: 40px;
+  --rv-dur: 0.88s;
+  --rv-delay: 0.1s;
+  --rv-spring: var(--spring-settle);
+  transform: perspective(1200px) translateY(var(--rv-from-y));
+}
+.r-sect.is-visible { transform: perspective(1200px); }
 
 /* No JS: never leave content invisible. */
 .no-js [data-reveal] { opacity: 1; transform: none; }

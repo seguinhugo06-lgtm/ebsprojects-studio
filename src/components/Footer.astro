@@ -1,6 +1,7 @@
 ---
 import Logo from './Logo.astro';
 import Reveal from './Reveal.astro';
+import SplitText from './SplitText.astro';
 import { contact, socials, clients, footerExpertises, serviceSlugs, site } from '../data/site';
 import { url } from '../lib/url';
 
@@ -15,7 +16,7 @@ const year = new Date().getFullYear();
 
     <div class="footer__top">
       <Reveal class="footer__identity">
-        <h2 class="title footer__name">{contact.name}</h2>
+        <SplitText as="h2" text={contact.name} class="title footer__name" />
         <ul class="footer__direct">
           <li>
             <a class="footer__mail" href={`mailto:${contact.email}`}>{contact.email}</a>
@@ -28,7 +29,7 @@ const year = new Date().getFullYear();
       </Reveal>
 
       <Reveal class="footer__about" delay={0.08}>
-        <p class="lead">{contact.bio}</p>
+        <SplitText as="p" text={contact.bio} preset="body" class="lead" />
         <ul class="footer__socials">
           {
             socials.map((s) => (

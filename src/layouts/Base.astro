@@ -93,58 +93,101 @@ const jsonLd = {
 
     <script>
       /**
-       * Scroll reveal.
+       * Reveal system, mirroring the original Framer build.
+       *
+       * Two triggers: `data-on-mount` groups play on load, everything else
+       * plays when it reaches the viewport. Elements split with
+       * `tokenization="line"` get their stagger index assigned here, by
+       * grouping tokens on the same visual line — the same thing Framer's
+       * `bm()` does with offsetTop.
        *
        * Deliberately a geometric sweep rather than an IntersectionObserver:
-       * the elements start at `opacity: 0`, so anything that stops the observer
-       * from reporting (a background/hidden tab, an embedded webview, a
-       * zero-height viewport) would leave the whole page permanently blank.
-       * A rAF-throttled pass over a few dozen nodes costs nothing and cannot
-       * fail that way.
+       * tokens start at `opacity: .001`, so anything that stops an observer
+       * from reporting (a hidden tab, an embedded webview, a zero-height
+       * viewport) would leave the page blank for good.
        */
-      const items = new Set(document.querySelectorAll<HTMLElement>('[data-reveal]'));
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const all = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
 
-      const revealAll = () => {
-        items.forEach((el) => el.classList.add('is-visible'));
-        items.clear();
+      /** Assign one stagger index per visual line. */
+      const groupLines = (el: HTMLElement) => {
+        const toks = [...el.querySelectorAll<HTMLElement>('.tok')];
+        if (!toks.length) return;
+        let line = 0;
+        let top: number | null = null;
+        for (const tok of toks) {
+          const y = tok.offsetTop;
+          if (top !== null && y !== top) line++;
+          top = y;
+          tok.style.setProperty('--i', String(line));
+        }
       };
 
+      all.forEach((el) => {
+        if (el.dataset.tokenization === 'line') groupLines(el);
+      });
+
+      const show = (el: HTMLElement) => el.classList.add('is-visible');
+
       if (reduced) {
-        revealAll();
+        all.forEach(show);
       } else {
-        let queued = false;
+        const onMount = all.filter((el) => el.dataset.onMount !== undefined);
+        const onScroll = new Set(all.filter((el) => el.dataset.onMount === undefined));
+
+        // Let the first paint settle so the transition actually runs. The
+        // timeout is a fallback: rAF does not fire in a hidden tab, and the
+        // on-load groups must not be left stuck at opacity 0 either way.
+        let mounted = false;
+        const playOnMount = () => {
+          if (mounted) return;
+          mounted = true;
+          onMount.forEach(show);
+        };
+        requestAnimationFrame(() => requestAnimationFrame(playOnMount));
+        window.setTimeout(playOnMount, 200);
+
+        let lastRun = 0;
+        let timer = 0;
 
         const sweep = () => {
-          queued = false;
+          lastRun = performance.now();
           const limit = window.innerHeight * 0.92;
-          items.forEach((el) => {
-            // Reveal once the element reaches the trigger line, and also if the
-            // viewport has already moved past it (deep link, restored scroll).
+          onScroll.forEach((el) => {
             if (el.getBoundingClientRect().top < limit) {
-              el.classList.add('is-visible');
-              items.delete(el);
+              show(el);
+              onScroll.delete(el);
             }
           });
-          if (items.size === 0) teardown();
+          if (onScroll.size === 0) teardown();
         };
 
+        /* Time-throttled rather than rAF-driven on purpose: rAF is paused in
+           background tabs and throttled by some embedded webviews, which would
+           strand every token below the fold at opacity 0. */
         const onEvent = () => {
-          if (queued) return;
-          queued = true;
-          requestAnimationFrame(sweep);
+          const since = performance.now() - lastRun;
+          if (since >= 80) {
+            sweep();
+          } else if (!timer) {
+            timer = window.setTimeout(() => { timer = 0; sweep(); }, 80 - since);
+          }
         };
 
         function teardown() {
           window.removeEventListener('scroll', onEvent);
           window.removeEventListener('resize', onEvent);
+          if (timer) { clearTimeout(timer); timer = 0; }
         }
 
         window.addEventListener('scroll', onEvent, { passive: true });
         window.addEventListener('resize', onEvent, { passive: true });
         sweep();
-        // Late-loading fonts and images shift layout; re-check after load.
-        window.addEventListener('load', onEvent, { once: true });
+        // Late fonts and images shift layout; re-measure lines and re-check.
+        window.addEventListener('load', () => {
+          all.forEach((el) => { if (el.dataset.tokenization === 'line') groupLines(el); });
+          onEvent();
+        }, { once: true });
       }
     </script>
   </body>

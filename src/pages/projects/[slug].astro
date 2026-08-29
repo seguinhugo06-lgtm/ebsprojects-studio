@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import Reveal from '../../components/Reveal.astro';
+import SplitText from '../../components/SplitText.astro';
 import { serviceSlugs } from '../../data/site';
 import { url } from '../../lib/url';
 
@@ -32,7 +33,7 @@ const [hero, ...rest] = gallery;
   <article class="project">
     {/* ------------------------------------------------------------- Head */}
     <header class="wrap project__head">
-      <Reveal class="project__meta">
+      <Reveal class="project__meta" data-on-mount>
         <div class="meta">
           <p class="label">Services</p>
           <ul class="meta__values">
@@ -51,17 +52,19 @@ const [hero, ...rest] = gallery;
         </div>
         <div class="meta">
           <p class="label">Client</p>
-          <ul class="meta__values"><li><span>{client}</span></li></ul>
+          <ul class="meta__values">
+            <li><SplitText text={client} preset="meta2" /></li>
+          </ul>
         </div>
         <div class="meta">
           <p class="label">Location</p>
-          <ul class="meta__values"><li><span>{location}</span></li></ul>
+          <ul class="meta__values">
+            <li><SplitText text={location} preset="meta3" /></li>
+          </ul>
         </div>
       </Reveal>
 
-      <Reveal delay={0.06}>
-        <h1 class="display project__title">{title}</h1>
-      </Reveal>
+      <SplitText as="h1" text={title} preset="meta4" class="display project__title" />
     </header>
 
     {/* ------------------------------------------------------------- Hero */}

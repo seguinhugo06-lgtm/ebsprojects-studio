@@ -1,0 +1,127 @@
+---
+/**
+ * Splits text into animated tokens, the way the original Framer build does.
+ *
+ * Framer's tokenizer (`fm()` in its bundle) behaves like this:
+ *   - `word`      → one span per word
+ *   - `character` → one span per character, words wrapped so they never break
+ *   - `line`      → same markup as `character`, but the stagger is applied per
+ *                   *visual* line, grouped at runtime by offsetTop
+ *   - `element`   → no splitting at all
+ *
+ * Words of 12 characters or fewer get `white-space: nowrap`, again matching
+ * Framer, so short words never wrap mid-token once they are split.
+ *
+ * The markup is assembled as a string rather than as template elements: the
+ * tokens are `inline-block`, so any stray newline or indentation between them
+ * would render as a visible extra space.
+ */
+import { reveal, type RevealName } from '../lib/motion';
+
+interface Props {
+  /** The text to animate. */
+  text: string;
+  as?: keyof HTMLElementTagNameMap;
+  /** Which reveal preset to use. */
+  preset?: RevealName;
+  /** Continue the stagger from an earlier block (multi-line headings). */
+  indexOffset?: number;
+  class?: string;
+}
+
+const {
+  text,
+  as: Tag = 'span',
+  preset = 'heading',
+  indexOffset = 0,
+  class: className,
+} = Astro.props;
+
+const cfg = reveal[preset];
+
+const esc = (v: string) =>
+  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const tok = (content: string, i: number) =>
+  `<span class="tok" style="--i:${i}">${esc(content)}</span>`;
+
+/** `line` staggers per visual line, so indices are assigned in the browser. */
+const perLine = cfg.tokenization === 'line';
+const words = text.split(' ');
+
+let html: string;
+let i = indexOffset;
+
+if (cfg.tokenization === 'element') {
+  html = tok(text, indexOffset);
+} else if (cfg.tokenization === 'word') {
+  html = words.map((w, wi) => tok(w, wi + indexOffset)).join(' ');
+} else {
+  html = words
+    .map((w) => {
+      const nowrap = w.length <= 12 ? ' style="white-space:nowrap"' : '';
+      const chars = [...w].map((ch) => tok(ch, perLine ? 0 : i++)).join('');
+      return `<span class="word"${nowrap}>${chars}</span>`;
+    })
+    .join(' ');
+}
+
+const style = [
+  `--start:${cfg.startDelay}s`,
+  `--stagger:${cfg.stagger}s`,
+  `--dur:${cfg.duration}s`,
+  cfg.noBlur ? '--tok-blur:0px' : null,
+]
+  .filter(Boolean)
+  .join(';');
+---
+
+<Tag
+  class:list={['split', className]}
+  data-reveal
+  data-tokenization={cfg.tokenization}
+  data-on-mount={cfg.onMount ? '' : undefined}
+  style={style}
+  set:html={html}
+/>
+
+<style>
+  .split { display: inline-block; }
+  .split :global(.word) { display: inline-block; }
+
+  .split :global(.tok) {
+    display: inline-block;
+    opacity: 0.001;
+    filter: blur(var(--tok-blur, 10px));
+    transform: translateY(10px) scale(0.95);
+    transition:
+      opacity var(--dur) var(--spring-smooth) var(--tok-delay),
+      filter var(--dur) var(--spring-smooth) var(--tok-delay),
+      transform var(--dur) var(--spring-smooth) var(--tok-delay);
+    --tok-delay: calc(var(--start) + var(--i) * var(--stagger));
+    /* No `will-change` on purpose: a long paragraph splits into ~280 tokens,
+       and promoting that many elements to their own layer costs more than the
+       transition saves. Browsers already composite opacity and transform. */
+  }
+
+  .split.is-visible :global(.tok) {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+
+  :global(html.no-js) .split :global(.tok) {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .split :global(.tok) {
+      opacity: 1;
+      filter: none;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>

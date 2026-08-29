@@ -12,7 +12,8 @@ export const site = {
   locale: 'fr_FR',
   lang: 'fr',
   tagline: 'Creative Design Studio',
-  subtitle: 'Direction Artistique & Design Graphique — Bordeaux — FR',
+  // Hyphens, not em dashes — as on the original site.
+  subtitle: 'Direction Artistique & Design Graphique - Bordeaux - FR',
 } as const;
 
 export const contact = {
