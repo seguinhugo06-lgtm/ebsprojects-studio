@@ -38,9 +38,9 @@ const { title, client, location, services, strip, grid, links } = project.data;
               <Image
                 src={img}
                 alt={`${title} — visuel ${i + 1}`}
-                widths={[480, 960, 1308]}
-                quality={72}
-                sizes="45vw"
+                widths={[500, 900, 1320, 1900]}
+                quality={85}
+                sizes="46vw"
                 loading={i < 3 ? 'eager' : 'lazy'}
               />
             </figure>
@@ -113,9 +113,13 @@ const { title, client, location, services, strip, grid, links } = project.data;
               <Image
                 src={slot.src}
                 alt={`${title} — visuel ${i + 1}`}
-                widths={[760, 1280, 1920]}
-                quality={74}
-                sizes={slot.span === 'full' ? '(max-width: 809px) 92vw, 92vw' : '(max-width: 809px) 92vw, 46vw'}
+                widths={slot.span === 'full' ? [800, 1280, 1920, 2560, 3200] : [500, 800, 1240, 1800, 2400]}
+                quality={85}
+                sizes={
+                  slot.span === 'full'
+                    ? '(max-width: 809px) 96vw, 88vw'
+                    : '(max-width: 809px) 96vw, 43vw'
+                }
                 loading="lazy"
               />
             </figure>
@@ -149,7 +153,7 @@ const { title, client, location, services, strip, grid, links } = project.data;
                 image={p.data.cover}
                 variant="related"
                 showServices
-                sizes="(max-width: 809px) 92vw, 31vw"
+                sizes="(max-width: 809px) 96vw, 29vw"
               />
             </Reveal>
           ))

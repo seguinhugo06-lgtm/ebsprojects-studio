@@ -22,7 +22,7 @@ const sources = projects.map((p) => ({ img: p.data.cover, alt: p.data.title }));
     {
       sources.map(({ img, alt }) => (
         <figure class="trail__item">
-          <Image src={img} alt={alt} widths={[240, 480]} sizes="240px" quality={70} loading="eager" />
+          <Image src={img} alt={alt} widths={[240, 480]} sizes="180px" quality={85} loading="eager" />
         </figure>
       ))
     }

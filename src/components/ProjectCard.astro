@@ -35,7 +35,7 @@ const {
   image,
   variant = 'overlay',
   showServices = false,
-  sizes = '(max-width: 809px) 92vw, 46vw',
+  sizes = '(max-width: 809px) 96vw, 43vw',
   priority = false,
 } = Astro.props;
 ---
@@ -45,8 +45,8 @@ const {
     <Image
       src={image}
       alt={title}
-      widths={[480, 760, 1226]}
-      quality={72}
+      widths={[500, 800, 1240, 1800, 2400]}
+      quality={85}
       sizes={sizes}
       loading={priority ? 'eager' : 'lazy'}
       fetchpriority={priority ? 'high' : 'auto'}
