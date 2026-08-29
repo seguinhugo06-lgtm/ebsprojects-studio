@@ -151,6 +151,8 @@ const strip = [...gallery, ...gallery];
                 title={p.data.title}
                 services={p.data.services}
                 image={p.data.cover}
+                variant="stacked"
+                showServices
                 sizes="(max-width: 809px) 92vw, 31vw"
               />
             </Reveal>
@@ -286,7 +288,7 @@ const strip = [...gallery, ...gallery];
   .related__grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(2rem, 3vw, 2.5rem) var(--gap);
+    gap: 40px;
   }
 
   @media (max-width: 1199.98px) {

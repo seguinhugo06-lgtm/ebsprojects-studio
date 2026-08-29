@@ -55,7 +55,6 @@ const { Content } = await render(expertise);
                   services={p.data.services}
                   image={p.data.thumb}
                   priority={i < 2}
-                caption={false}
                 />
               </Reveal>
             ))}
@@ -88,7 +87,7 @@ const { Content } = await render(expertise);
   .grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(2.5rem, 4vw, 3.5rem) var(--gap);
+    gap: 40px;
   }
 
   .empty { padding-block: 2rem; }
