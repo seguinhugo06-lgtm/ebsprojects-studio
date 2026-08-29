@@ -11,6 +11,8 @@ export const site = {
   description: 'Direction Artistique & Design Graphique à Bordeaux',
   locale: 'fr_FR',
   lang: 'fr',
+  /** Shown in the footer. The original site stamps 2025, not the current year. */
+  copyrightYear: 2025,
   tagline: 'Creative Design Studio',
   // Hyphens, not em dashes — as on the original site.
   subtitle: 'Direction Artistique & Design Graphique - Bordeaux - FR',
@@ -21,15 +23,18 @@ export const contact = {
   role: 'Directrice artistique & Designer graphique',
   email: 'ebsprojects.studio@gmail.com',
   phone: '+336 87 40 20 93',
+  /** Spaced form used in the footer. */
+  phoneDisplay: '+336 87 40 20 93',
   phoneHref: '+33687402093',
   city: 'Bordeaux',
   country: 'France',
   bio: `Directrice artistique et Designer Graphique indépendante à Bordeaux. À travers mon studio, je crée des projets visuels sur mesure pour marques et institutions, en privilégiant sens, esthétique et impact. Chaque projet est une aventure humaine et créative. Pour collaborer ou échanger sur votre projet, n’hésitez pas à me contacter.`,
 } as const;
 
+/** Order matches the footer bar on the original site. */
 export const socials = [
-  { label: 'Instagram', url: 'https://www.instagram.com/ebsprojects.studio/' },
   { label: 'LinkedIn', url: 'https://fr.linkedin.com/in/elina-bouyssou-13687aa9' },
+  { label: 'Instagram', url: 'https://www.instagram.com/ebsprojects.studio/' },
   { label: 'Behance', url: 'https://www.behance.net/ebsprojects?locale=fr_FR' },
 ] as const;
 

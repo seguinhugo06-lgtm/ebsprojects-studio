@@ -11,6 +11,8 @@ interface Props {
   sizes?: string;
   /** Eager-load the first cards so the grid does not pop in. */
   priority?: boolean;
+  /** The listing pages show images only; the home page captions them. */
+  caption?: boolean;
 }
 
 const {
@@ -20,6 +22,7 @@ const {
   image,
   sizes = '(max-width: 760px) 92vw, (max-width: 1360px) 46vw, 613px',
   priority = false,
+  caption = true,
 } = Astro.props;
 ---
 
@@ -35,12 +38,14 @@ const {
       fetchpriority={priority ? 'high' : 'auto'}
     />
   </div>
-  <div class="card__meta">
-    <h3 class="card__title">{title}</h3>
-    <p class="card__services">
-      {services.map((s) => <span>{s}</span>)}
-    </p>
-  </div>
+  {
+    caption && (
+      <div class="card__meta">
+        <h3 class="card__title">{title}</h3>
+        <p class="card__services">{services.map((s) => <span>{s}</span>)}</p>
+      </div>
+    )
+  }
 </a>
 
 <style>

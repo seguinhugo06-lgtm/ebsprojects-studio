@@ -1,0 +1,151 @@
+---
+/**
+ * The hero's cursor trail: project images spawn along the pointer's path,
+ * bloom in, hold, then shrink and blur away.
+ *
+ * Values come from the original Framer build's own component config:
+ *   frequency  50   → a new image every 50px of travel
+ *   visibleFor 1    → one second at full size before it leaves
+ *   in   opacity 0 → 1, scale .5 → 1, blur 8px → 0, spring(300, 30)
+ *   out  opacity → 0, scale → .5, blur → 8px
+ */
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+/** One image per project, in listing order, cycled through as the pointer moves. */
+const sources = projects.map((p) => ({ img: p.data.cover, alt: p.data.title }));
+---
+
+<div class="trail" data-trail aria-hidden="true">
+  <div class="trail__pool" data-trail-pool>
+    {
+      sources.map(({ img, alt }) => (
+        <figure class="trail__item">
+          <Image src={img} alt={alt} widths={[240, 480]} sizes="240px" quality={70} loading="eager" />
+        </figure>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .trail {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    /* Sits behind the hero wording, as on the original. */
+    z-index: 0;
+  }
+
+  /* Holds the originals; clones are moved into .trail itself. */
+  .trail__pool { display: none; }
+
+  .trail :global(.trail__item) {
+    position: absolute;
+    width: 180px;
+    height: 230px;
+    margin: 0;
+    /* Spawn point is the pointer; the element is centred on it. */
+    translate: -50% -50%;
+    opacity: 0;
+    scale: 0.5;
+    filter: blur(8px);
+    will-change: opacity, scale, filter;
+  }
+
+  .trail :global(.trail__item img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .trail :global(.trail__item.is-in) {
+    opacity: 1;
+    scale: 1;
+    filter: blur(0px);
+    transition:
+      opacity 0.33s var(--spring-bloom),
+      scale 0.33s var(--spring-bloom),
+      filter 0.33s var(--spring-bloom);
+  }
+
+  .trail :global(.trail__item.is-out) {
+    opacity: 0;
+    scale: 0.5;
+    filter: blur(8px);
+    transition:
+      opacity 0.33s var(--spring-bloom),
+      scale 0.33s var(--spring-bloom),
+      filter 0.33s var(--spring-bloom);
+  }
+
+  /* A pointer trail is meaningless without a pointer, and unwelcome when
+     motion is reduced. */
+  @media (prefers-reduced-motion: reduce), (pointer: coarse) {
+    .trail { display: none; }
+  }
+</style>
+
+<script>
+  const host = document.querySelector<HTMLElement>('[data-trail]');
+  const pool = document.querySelector<HTMLElement>('[data-trail-pool]');
+
+  const fine = window.matchMedia('(pointer: fine)').matches;
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (host && pool && fine && !still) {
+    const templates = [...pool.querySelectorAll<HTMLElement>('.trail__item')];
+
+    /** Distance in px the pointer must travel before the next image appears. */
+    const FREQUENCY = 50;
+    /** How long an image holds at full size, in ms. */
+    const VISIBLE_FOR = 1000;
+    /** Matches the CSS transition above. */
+    const TRANSITION = 330;
+
+    let lastX: number | null = null;
+    let lastY: number | null = null;
+    let next = 0;
+
+    const spawn = (x: number, y: number) => {
+      const node = templates[next % templates.length].cloneNode(true) as HTMLElement;
+      next++;
+      node.style.left = `${x}px`;
+      node.style.top = `${y}px`;
+      host.appendChild(node);
+
+      // Force a style resolve so the transition runs from the start state.
+      void node.offsetWidth;
+      node.classList.add('is-in');
+
+      window.setTimeout(() => {
+        node.classList.remove('is-in');
+        node.classList.add('is-out');
+        window.setTimeout(() => node.remove(), TRANSITION + 60);
+      }, VISIBLE_FOR);
+    };
+
+    host.parentElement?.addEventListener(
+      'pointermove',
+      (e) => {
+        if (e.pointerType !== 'mouse') return;
+        const rect = host.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (lastX === null || lastY === null) {
+          lastX = x;
+          lastY = y;
+          return;
+        }
+        if (Math.hypot(x - lastX, y - lastY) < FREQUENCY) return;
+        lastX = x;
+        lastY = y;
+        spawn(x, y);
+      },
+      { passive: true }
+    );
+  }
+</script>

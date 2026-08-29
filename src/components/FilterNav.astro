@@ -8,13 +8,18 @@ interface Props {
 }
 const { active = null } = Astro.props;
 
-const expertises = (await getCollection('expertises')).sort((a, b) => a.data.order - b.data.order);
+/* Alphabetical, as on the original site — not the numbered order used on the
+   home page. And the first entry is worded differently on each page. */
+const expertises = (await getCollection('expertises')).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title, 'fr')
+);
+const allLabel = active === null ? 'All projects' : 'All works';
 ---
 
 <nav class="filters" aria-label="Filtrer les projets par expertise">
   <ul>
     <li>
-      <a href={url('/projects')} aria-current={active === null ? 'page' : undefined}>All works</a>
+      <a href={url('/projects')} aria-current={active === null ? 'page' : undefined}>{allLabel}</a>
     </li>
     {
       expertises.map((e) => (

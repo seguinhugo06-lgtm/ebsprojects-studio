@@ -1,56 +1,29 @@
 ---
-import Logo from './Logo.astro';
 import Reveal from './Reveal.astro';
 import SplitText from './SplitText.astro';
 import { contact, socials, clients, footerExpertises, serviceSlugs, site } from '../data/site';
 import { url } from '../lib/url';
-
-const year = new Date().getFullYear();
 ---
 
 <footer class="footer" id="contact">
   <div class="wrap">
-    <Reveal>
-      <p class="label footer__eyebrow">Infos &amp; contact</p>
-    </Reveal>
-
-    <div class="footer__top">
-      <Reveal class="footer__identity">
-        <SplitText as="h2" text={contact.name} class="title footer__name" />
-        <ul class="footer__direct">
-          <li>
-            <a class="footer__mail" href={`mailto:${contact.email}`}>{contact.email}</a>
-          </li>
-          <li>
-            <a href={`tel:${contact.phoneHref}`}>{contact.phone}</a>
-          </li>
-          <li class="footer__place">{contact.city}, {contact.country}</li>
-        </ul>
-      </Reveal>
-
-      <Reveal class="footer__about" delay={0.08}>
-        <SplitText as="p" text={contact.bio} preset="body" class="lead" />
-        <ul class="footer__socials">
-          {
-            socials.map((s) => (
-              <li>
-                <a class="link" href={s.url} target="_blank" rel="noopener noreferrer">
-                  {s.label}
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                    <path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.2" />
-                  </svg>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </Reveal>
-    </div>
-
     <div class="footer__cols">
-      <Reveal class="footer__col">
+      <Reveal class="footer__col footer__col--contact">
+        <p class="label">Infos &amp; contacts</p>
+        <ul class="footer__direct">
+          <li>{contact.name}</li>
+          <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
+          <li><a href={`tel:${contact.phoneHref}`}>{contact.phoneDisplay}</a></li>
+        </ul>
+      </Reveal>
+
+      <Reveal class="footer__col footer__col--bio" delay={0.06}>
+        <SplitText as="p" text={contact.bio} preset="body" class="footer__bio" />
+      </Reveal>
+
+      <Reveal class="footer__col" delay={0.12}>
         <p class="label">Expertises</p>
-        <ul>
+        <ul class="footer__list">
           {
             footerExpertises.map((label) => {
               const slug = serviceSlugs[label];
@@ -64,57 +37,49 @@ const year = new Date().getFullYear();
         </ul>
       </Reveal>
 
-      <Reveal class="footer__col" delay={0.06}>
+      <Reveal class="footer__col" delay={0.18}>
         <p class="label">Clients</p>
-        <ul>
+        <ul class="footer__list">
           {clients.map((c) => <li><span>{c}</span></li>)}
-        </ul>
-      </Reveal>
-
-      <Reveal class="footer__col footer__col--nav" delay={0.12}>
-        <p class="label">Navigation</p>
-        <ul>
-          <li><a href={url('/')}>Home</a></li>
-          <li><a href={url('/projects')}>Tous les projets</a></li>
-          <li><a href={url('/#expertises')}>Expertises</a></li>
-          <li><a href={url('/#process')}>Déroulé d’un projet</a></li>
         </ul>
       </Reveal>
     </div>
 
     <div class="footer__bottom">
-      <Logo large class="footer__mark" />
+      <ul class="footer__socials">
+        {
+          socials.map((s) => (
+            <li>
+              <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
+            </li>
+          ))
+        }
+      </ul>
       <p class="footer__legal">
-        <span>© {year} {site.name}</span>
-        <span>Tous droits réservés</span>
+        <span class="footer__mark">ēbs:projects</span> ©{site.copyrightYear}
       </p>
     </div>
   </div>
 </footer>
 
 <style>
-  .footer {
-    padding-block: var(--section-y) 2.5rem;
-    border-top: 1px solid var(--line-soft);
-  }
+  .footer { padding-block: clamp(5rem, 12vw, 11rem) 2.5rem; }
 
-  .footer__eyebrow { margin-bottom: clamp(2rem, 4vw, 3.25rem); }
-
-  .footer__top {
+  .footer__cols {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(2.5rem, 5vw, 5rem);
-    padding-bottom: clamp(3rem, 6vw, 5rem);
-    border-bottom: 1px solid var(--line-soft);
+    grid-template-columns: 1.15fr 1.4fr 1fr 1fr;
+    gap: clamp(2rem, 4vw, 3.5rem);
   }
 
-  .footer__name { margin-bottom: 1.75rem; }
+  .footer__col .label { margin-bottom: 2.5rem; }
+
+  /* --- Contact block ------------------------------------------------------ */
 
   .footer__direct {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    font-size: var(--fs-lead);
+    gap: 1.35rem;
+    font-size: 1rem;
   }
 
   .footer__direct a {
@@ -123,77 +88,74 @@ const year = new Date().getFullYear();
     background-position: 0 100%;
     background-repeat: no-repeat;
     transition: background-size 0.45s var(--ease);
+    word-break: break-word;
   }
   .footer__direct a:hover { background-size: 100% 1px; }
 
-  .footer__mail { word-break: break-word; }
-  .footer__place { color: var(--fg-muted); }
+  /* --- Bio ---------------------------------------------------------------- */
 
-  .footer__about {
+  .footer__bio {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--fg-dim);
+    max-width: 34ch;
+  }
+
+  /* --- Lists -------------------------------------------------------------- */
+
+  .footer__list {
     display: flex;
     flex-direction: column;
+    gap: 0.6rem;
+    font-size: 0.9375rem;
+  }
+
+  .footer__list li { color: var(--fg); }
+  .footer__list a { transition: opacity 0.3s var(--ease); }
+  .footer__list a:hover { opacity: 0.6; }
+
+  /* --- Bottom bar --------------------------------------------------------- */
+
+  .footer__bottom {
+    display: flex;
+    align-items: baseline;
     justify-content: space-between;
     gap: 2rem;
+    margin-top: clamp(4rem, 10vw, 8.5rem);
   }
 
   .footer__socials {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
+    gap: 1.6rem;
   }
 
-  .footer__cols {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(2rem, 4vw, 4rem);
-    padding-block: clamp(3rem, 6vw, 5rem);
+  .footer__socials a {
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    transition: opacity 0.3s var(--ease);
   }
-
-  .footer__col .label { margin-bottom: 1.25rem; }
-
-  .footer__col ul {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .footer__col li { color: var(--fg-muted); }
-
-  .footer__col a {
-    transition: color 0.3s var(--ease);
-  }
-  .footer__col a:hover { color: var(--fg); }
-
-  .footer__bottom {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 2rem;
-    padding-top: clamp(2rem, 4vw, 3rem);
-    border-top: 1px solid var(--line-soft);
-  }
-
-  .footer__mark { color: var(--fg); }
+  .footer__socials a:hover { opacity: 0.6; }
 
   .footer__legal {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.15rem;
     font-size: var(--fs-label);
-    letter-spacing: 0.04em;
-    color: var(--fg-dim);
-    text-align: right;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
   }
 
-  @media (max-width: 860px) {
-    .footer__top { grid-template-columns: minmax(0, 1fr); }
-    .footer__cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .footer__mark { font-weight: 600; }
+
+  @media (max-width: 1199.98px) {
+    .footer__cols { grid-template-columns: 1fr 1fr; row-gap: 3.5rem; }
   }
 
-  @media (max-width: 560px) {
-    .footer__cols { grid-template-columns: minmax(0, 1fr); }
-    .footer__bottom { flex-direction: column; align-items: flex-start; }
-    .footer__legal { align-items: flex-start; text-align: left; }
+  @media (max-width: 809.98px) {
+    .footer__cols { grid-template-columns: minmax(0, 1fr); row-gap: 3rem; }
+    .footer__col .label { margin-bottom: 1.25rem; }
+    .footer__direct { gap: 0.6rem; }
+    .footer__bottom { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
   }
 </style>
