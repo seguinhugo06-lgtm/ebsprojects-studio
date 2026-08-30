@@ -308,10 +308,10 @@ const showcase = showcaseSlugs
 
   .rail {
     display: flex;
-    gap: 0;
+    gap: 60px;
     padding-inline: var(--gutter);
     overflow-x: auto;
-    scroll-snap-type: x proximity;
+    /* No snapping: it would auto-scroll past the left gutter on load. */
     scrollbar-width: none;
     /* The last column bleeds off and fades, rather than being clipped. */
     -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
@@ -320,16 +320,15 @@ const showcase = showcaseSlugs
   .rail::-webkit-scrollbar { display: none; }
 
   .rail__item {
-    flex: 0 0 clamp(230px, 24.5vw, 316px);
-    scroll-snap-align: start;
-    padding-right: clamp(1.5rem, 4vw, 5rem);
+    /* 257px wide with a 60px gap, as measured on the original. */
+    flex: 0 0 clamp(215px, 17.85vw, 300px);
   }
 
   .expertise {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    height: 100%;
+    height: 350px;
   }
 
   .expertise__index {
@@ -340,7 +339,7 @@ const showcase = showcaseSlugs
   }
 
   .expertise__title {
-    font-size: 1.1875rem;
+    font-size: 1.0625rem;
     font-weight: 400;
     letter-spacing: -0.015em;
     margin-bottom: 1.15rem;
@@ -355,13 +354,15 @@ const showcase = showcaseSlugs
     flex: 1;
   }
 
+  .expertise__body :global(p) { margin: 0; }
+
   /* The small "+" that stands in for a link on each column. */
   .expertise__plus {
     position: relative;
     display: block;
-    width: 11px;
-    height: 11px;
-    margin-top: 1.75rem;
+    width: 32px;
+    height: 32px;
+    margin-top: auto;
     color: var(--fg-muted);
     transition: color 0.35s var(--ease), transform 0.45s var(--ease);
   }
@@ -477,7 +478,8 @@ const showcase = showcaseSlugs
 
   .slider__track {
     position: relative;
-    aspect-ratio: 21 / 9;
+    /* 1265 x 793 on the original — not a letterbox. */
+    aspect-ratio: 1265 / 793;
     overflow: hidden;
     background: var(--bg-raised);
     border-radius: 2px;
@@ -500,9 +502,9 @@ const showcase = showcaseSlugs
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 1.2s var(--ease);
+    /* The original holds the image slightly larger than its frame. */
+    scale: 1.1;
   }
-  .slide[data-active]:hover :global(img) { transform: scale(1.03); }
 
   .slide__meta {
     position: absolute;
@@ -528,26 +530,26 @@ const showcase = showcaseSlugs
   .slider__dots {
     position: absolute;
     left: 50%;
-    bottom: clamp(1rem, 2.5vw, 2rem);
+    bottom: 73px;
     translate: -50% 0;
     display: flex;
     gap: 8px;
   }
 
   .slider__dot {
-    width: 26px;
-    height: 3px;
+    width: 28px;
+    height: 6px;
     padding: 0;
     border: 0;
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.2);
     cursor: pointer;
-    transition: background-color 0.4s var(--ease), width 0.4s var(--ease);
+    transition: background-color 0.4s var(--ease);
   }
 
-  .slider__dot[aria-selected='true'] {
-    background: var(--fg);
-    width: 34px;
+  .slider__dot[aria-selected='true'] { background: var(--fg); }
+
+  @media (max-width: 809.98px) {
+    .slider__dots { bottom: 20px; }
   }
 
 </style>
@@ -575,7 +577,7 @@ const showcase = showcaseSlugs
     const syncArrows = () => {
       const atStart = rail.scrollLeft <= 2;
       const atEnd = Math.ceil(rail.scrollLeft + rail.clientWidth) >= rail.scrollWidth - 2;
-      prev?.toggleAttribute('hidden', atStart);
+        prev?.toggleAttribute('hidden', atStart);
       next?.toggleAttribute('hidden', atEnd);
     };
 
@@ -622,8 +624,9 @@ const showcase = showcaseSlugs
       dots.forEach((d, n) => d.setAttribute('aria-selected', n === index ? 'true' : 'false'));
     };
 
+    /* Still advances when motion is reduced — the cross-fade is what gets
+       suppressed there, by the global transition override, not the rotation. */
     const play = () => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       stop();
       sliderTimer = window.setInterval(() => go(index + 1), INTERVAL);
     };
