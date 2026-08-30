@@ -58,7 +58,7 @@ const showcase = showcaseSlugs
   <section class="section" id="work">
     <div class="wrap">
       <Reveal class="section-head">
-        <SplitText as="h2" text="Selected projects" class="label" />
+        <SplitText as="h2" text="Selected projects" class="label--section" />
         <a class="link" href={url('/projects')}>
           Voir tous les projets
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -90,7 +90,7 @@ const showcase = showcaseSlugs
   <section class="section expertises r-sect" id="expertises" data-reveal>
     <div class="wrap">
       <Reveal class="section-head">
-        <SplitText as="h2" text="Expertises" class="label" />
+        <SplitText as="h2" text="Expertises" class="label--section" />
         <p class="expertises__hint">Faites défiler →</p>
       </Reveal>
     </div>
@@ -137,14 +137,14 @@ const showcase = showcaseSlugs
   <section class="section" id="process">
     <div class="wrap">
       <Reveal>
-        <SplitText as="h2" text={"Comment se déroule un projet\u00A0?"} class="title process__heading" />
+        <SplitText as="h2" text={"Comment se déroule un projet\u00A0?"} class="label--section process__heading" />
       </Reveal>
 
       <div class="process">
         {
           process.map((step, i) => (
             <Reveal class="r-30">
-              <details class:list={['step', { 'is-open': i === 0 }]} name="process" open={i === 0}>
+              <details class="step" name="process">
                 <summary class="step__summary">
                   <span class="step__index" aria-hidden="true">•</span>
                   <span class="step__title">{step.title}</span>
@@ -304,6 +304,10 @@ const showcase = showcaseSlugs
 
   /* --- Expertises rail --------------------------------------------------- */
 
+  /* The rail and the heading below it touch on the original. */
+  .expertises { padding-bottom: 0; }
+  #process { padding-top: clamp(1.5rem, 3vw, 2.5rem); }
+
   .expertises__hint {
     font-size: var(--fs-label);
     letter-spacing: var(--tracking-label);
@@ -410,8 +414,9 @@ const showcase = showcaseSlugs
   /* --- Process ----------------------------------------------------------- */
 
   .process__heading {
-    max-width: 16ch;
-    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    display: block;
+    max-width: none;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
   }
 
   .process { border-top: 1px solid var(--line-soft); }
@@ -423,7 +428,7 @@ const showcase = showcaseSlugs
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    padding-block: clamp(1.15rem, 2.2vw, 1.6rem);
+    padding-block: clamp(1rem, 1.9vw, 1.4rem);
     cursor: pointer;
     list-style: none;
     transition: color 0.3s var(--ease);
@@ -591,11 +596,21 @@ const showcase = showcaseSlugs
 </style>
 
 <script>
-  /** Timers must not survive a client-side navigation. */
+  /* One handle on the live slider, reassigned by each init(). Document-level
+     listeners are registered once here rather than inside init(): bound in
+     there, every navigation would add another closure holding a dead slider,
+     and those stale handlers would stop the timer of the live one. */
   let sliderTimer = 0;
+  let current: { play: () => void; stop: () => void } = { play: () => {}, stop: () => {} };
+
   document.addEventListener('astro:before-swap', () => {
-    if (sliderTimer) clearInterval(sliderTimer);
-    sliderTimer = 0;
+    current.stop();
+    current = { play: () => {}, stop: () => {} };
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) current.stop();
+    else current.play();
   });
 
   const init = () => {
@@ -719,13 +734,13 @@ const showcase = showcaseSlugs
       })
     );
 
-    // Don't advance under the reader's cursor, or while the tab is hidden.
+    // Don't advance under the reader's cursor.
     slider.addEventListener('pointerenter', stop);
     slider.addEventListener('pointerleave', play);
-    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : play()));
 
+    current = { play, stop };
     go(0);
-    play();
+    if (!document.hidden) play();
   }
   };
 

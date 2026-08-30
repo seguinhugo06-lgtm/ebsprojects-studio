@@ -31,7 +31,9 @@
      the gutters, so wide screens get wider pages. */
   --gutter: clamp(1.25rem, 6vw, 5rem);
   --gap: clamp(1rem, 2.8vw, 2.5rem);
-  --section-y: clamp(5rem, 11vw, 10rem);
+  /* ~88px at 1440, so two adjacent sections leave ~175px between them —
+     the gap measured on the original. */
+  --section-y: clamp(2.5rem, 4.45vw, 4rem);
 
   /* Motion — springs reproduced from the original Framer bundle.
      `smooth` is a critically damped spring (bounce: 0); `settle` is the
@@ -131,6 +133,17 @@ button:active:not(:disabled) { scale: 0.96; transition: scale var(--press); }
 
 /* --- Typography helpers -------------------------------------------------- */
 
+/* Section headings — "Selected projects", "Expertises", "More projects" —
+   are set at 17px on the original, not at the 13px of the meta labels. */
+.label--section {
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
 .label {
   font-size: var(--fs-label);
   font-weight: 400;
@@ -171,7 +184,7 @@ button:active:not(:disabled) { scale: 0.96; transition: scale var(--press); }
   gap: 1.5rem;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--line-soft);
-  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  margin-bottom: clamp(0.85rem, 1.5vw, 1.35rem);
 }
 
 /* --- Inline link with animated underline --------------------------------- */
