@@ -113,8 +113,25 @@ const jsonLd = {
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       let teardownPrevious: (() => void) | null = null;
 
+      /** Fade photographs up once they have actually decoded. */
+      const settleImages = () => {
+        const imgs = [...document.querySelectorAll<HTMLImageElement>('[data-fade]')];
+        const done = (img: HTMLImageElement) => img.classList.add('is-loaded');
+
+        imgs.forEach((img) => {
+          if (img.complete && img.naturalWidth > 0) { done(img); return; }
+          img.addEventListener('load', () => done(img), { once: true });
+          img.addEventListener('error', () => done(img), { once: true });
+        });
+
+        /* Safety net: a decode that never reports back must not leave a
+           photograph invisible. */
+        window.setTimeout(() => imgs.forEach(done), 4000);
+      };
+
       const init = () => {
       teardownPrevious?.();
+      settleImages();
       const all = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
 
       /** Assign one stagger index per visual line. */
@@ -160,7 +177,19 @@ const jsonLd = {
 
         const sweep = () => {
           lastRun = performance.now();
-          const limit = window.innerHeight * 0.92;
+          const height = window.innerHeight;
+
+          /* A viewport with no height (an embedded webview, a collapsed
+             frame) can never contain anything: reveal the lot rather than
+             leave the page blank. */
+          if (height <= 0) {
+            onScroll.forEach(show);
+            onScroll.clear();
+            teardown();
+            return;
+          }
+
+          const limit = height * 0.92;
           onScroll.forEach((el) => {
             if (el.getBoundingClientRect().top < limit) {
               show(el);

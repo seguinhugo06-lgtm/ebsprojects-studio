@@ -43,6 +43,8 @@
   --spring-bloom: linear(0.0000, 0.0273, 0.0944, 0.1838, 0.2832, 0.3840, 0.4806, 0.5695, 0.6490, 0.7183, 0.7774, 0.8271, 0.8680, 0.9012, 0.9277, 0.9485, 0.9647, 0.9769, 0.9860, 0.9926, 0.9972, 1.0004, 1.0024, 1.0036);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 0.7s;
+  /* Short, springy curve for anything the reader touches. */
+  --press: 0.16s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 *,
@@ -79,6 +81,36 @@ a {
 }
 
 button { font: inherit; color: inherit; }
+
+/* --- Tactile feedback ---------------------------------------------------
+   Everything clickable gives a little under the finger, then springs back.
+   Kept small: at this scale it reads as responsiveness, not as bounce.
+   ---------------------------------------------------------------------- */
+
+.pill,
+.link,
+button,
+.card,
+.rail__nav,
+.slider__dot {
+  transition-property: opacity, transform, background-color, border-color, color, background-size;
+  transition-duration: 0.35s;
+  transition-timing-function: var(--ease);
+}
+
+.pill:active,
+button:active:not(:disabled) { scale: 0.96; transition: scale var(--press); }
+
+.card:active { scale: 0.995; transition: scale var(--press); }
+
+.link:active { opacity: 0.65; transition: opacity var(--press); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pill:active,
+  button:active,
+  .card:active,
+  .link:active { scale: 1; opacity: 1; }
+}
 
 ::selection { background: var(--fg); color: var(--bg); }
 
@@ -248,6 +280,56 @@ button { font: inherit; color: inherit; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* --- Images settling in -------------------------------------------------
+   Photographs fade up and settle from a hair over-size as they decode, so a
+   grid fills in rather than snapping into place. Guarded on `no-js`: without
+   the script that marks them loaded, they must simply be visible.
+   ---------------------------------------------------------------------- */
+
+html:not(.no-js) [data-fade] {
+  opacity: 0;
+  transform: scale(1.025);
+  transition:
+    opacity 0.8s var(--spring-smooth),
+    transform 1.1s var(--spring-smooth);
+}
+
+html:not(.no-js) [data-fade].is-loaded {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.no-js) [data-fade] { opacity: 1; transform: none; transition: none; }
+}
+
+/* --- Page transitions ---------------------------------------------------
+   A cross-fade with a slight lift on the incoming page. Longer in than out,
+   so the new page leads and the old one gets out of the way.
+   ---------------------------------------------------------------------- */
+
+::view-transition-old(root) {
+  animation: page-out 0.24s var(--ease) both;
+}
+
+::view-transition-new(root) {
+  animation: page-in 0.42s var(--spring-smooth) both;
+}
+
+@keyframes page-out {
+  to { opacity: 0; }
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
 }
 
 /* --- Utilities ----------------------------------------------------------- */

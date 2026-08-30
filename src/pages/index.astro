@@ -179,6 +179,7 @@ const showcase = showcaseSlugs
                     quality={85}
                     sizes="(max-width: 809px) 96vw, 88vw"
                     loading="lazy"
+                    data-fade
                   />
                   <span class="slide__meta">
                     <span class="slide__title">{p.data.title}</span>
@@ -418,6 +419,7 @@ const showcase = showcaseSlugs
   .step { border-bottom: 1px solid var(--line-soft); }
 
   .step__summary {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.65rem;
@@ -427,7 +429,22 @@ const showcase = showcaseSlugs
     transition: color 0.3s var(--ease);
   }
   .step__summary::-webkit-details-marker { display: none; }
-  .step__summary:hover { color: var(--fg); }
+
+  /* A faint wash bleeding into the gutters, so the whole row reads as the
+     target rather than just the words. */
+  .step__summary::before {
+    content: '';
+    position: absolute;
+    inset: 0 -1rem;
+    background: var(--surface);
+    opacity: 0;
+    transition: opacity 0.35s var(--ease);
+    pointer-events: none;
+  }
+  .step__summary:hover::before { opacity: 1; }
+  .step__summary > * { position: relative; }
+
+  .step__summary:hover .step__icon { color: var(--fg); }
 
   .step__index {
     flex: none;
@@ -564,6 +581,7 @@ const showcase = showcaseSlugs
     transition: background-color 0.4s var(--ease);
   }
 
+  .slider__dot:hover { background: rgba(255, 255, 255, 0.55); }
   .slider__dot[aria-selected='true'] { background: var(--fg); }
 
   @media (max-width: 809.98px) {
