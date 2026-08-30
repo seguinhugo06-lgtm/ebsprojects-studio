@@ -53,17 +53,21 @@ const {
     />
 
     {
-      variant === 'overlay' && (
+      variant !== 'stacked' && (
         <span class="card__overlay">
           <span class="card__over-title">{title}</span>
-          <span class="card__over-services">{services.join(', ')}</span>
+          <span class="card__over-services">
+            {services.map((s) => (
+              <span>{s}</span>
+            ))}
+          </span>
         </span>
       )
     }
   </div>
 
   {
-    variant !== 'overlay' && (
+    variant === 'stacked' && (
       <div class="card__caption">
         <h3 class="card__title">{title}</h3>
         {showServices && <p class="card__services">{services.join(', ')}</p>}
@@ -128,13 +132,21 @@ const {
   .card__over-title,
   .card__over-services {
     font-size: 0.9375rem;
-    line-height: 1.2;
+    line-height: 1.35;
     color: var(--fg);
     text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
   }
 
   .card__over-title { text-transform: uppercase; }
-  .card__over-services { flex: none; text-align: right; }
+
+  /* One service per line, right-aligned, as on the original. */
+  .card__over-services {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+  }
 
   @media (max-width: 809.98px) {
     /* No hover on touch: show the caption under the image instead. */
