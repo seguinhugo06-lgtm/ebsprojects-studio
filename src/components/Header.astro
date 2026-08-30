@@ -49,8 +49,8 @@ function isCurrent(href: string) {
     <nav aria-label="Navigation mobile">
       <ul>
         {
-          nav.map((item) => (
-            <li>
+          nav.map((item, i) => (
+            <li style={`--i:${i}`}>
               <a href={url(item.href)}>{item.label}</a>
             </li>
           ))
@@ -177,9 +177,45 @@ function isCurrent(href: string) {
     height: 100dvh;
     padding: 0 var(--gutter) 6rem;
     background: var(--bg);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.45s var(--spring-smooth),
+      visibility 0.45s;
   }
 
+  .menu.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* `hidden` only once the closing animation has finished, so the panel stays
+     out of the accessibility tree while it is genuinely closed. */
   .menu[hidden] { display: none; }
+
+  .menu li,
+  .menu__mail {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.55s var(--spring-smooth) var(--d, 0s),
+      transform 0.55s var(--spring-smooth) var(--d, 0s);
+  }
+
+  .menu li { --d: calc(0.06s + var(--i) * 0.05s); }
+  .menu__mail { --d: 0.3s; }
+
+  .menu.is-open li,
+  .menu.is-open .menu__mail {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu,
+    .menu li,
+    .menu__mail { transition: none; }
+  }
 
   .menu ul {
     display: flex;
@@ -217,27 +253,50 @@ function isCurrent(href: string) {
   const menu = document.querySelector<HTMLElement>('[data-menu]');
 
   if (header && toggle && menu) {
+    let closing = 0;
+    /* The reveal is deferred a frame; this records what state it should end
+       up in, so a queued frame can't re-open a menu that was closed since. */
+    let wanted = false;
+
     const setMenu = (open: boolean) => {
-      menu.hidden = !open;
+      wanted = open;
       toggle.setAttribute('aria-expanded', String(open));
       toggle.querySelector('.visually-hidden')!.textContent = open ? 'Fermer le menu' : 'Ouvrir le menu';
       header.toggleAttribute('data-menu-open', open);
       document.documentElement.style.overflow = open ? 'hidden' : '';
+
+      if (closing) { clearTimeout(closing); closing = 0; }
+
+      if (open) {
+        menu.hidden = false;
+        // Let the panel lay out once before transitioning from the start state.
+        const reveal = () => { if (wanted) menu.classList.add('is-open'); };
+        requestAnimationFrame(() => requestAnimationFrame(reveal));
+        window.setTimeout(reveal, 60);
+      } else {
+        menu.classList.remove('is-open');
+        closing = window.setTimeout(() => {
+          menu.hidden = true;
+          closing = 0;
+        }, 480);
+      }
     };
 
-    toggle.addEventListener('click', () => setMenu(menu.hidden));
+    /* Reads the tracked state, not the class: the class is added a frame
+       later, so two fast clicks would both be read as "closed". */
+    toggle.addEventListener('click', () => setMenu(!wanted));
     menu.addEventListener('click', (e) => {
       if ((e.target as HTMLElement).closest('a')) setMenu(false);
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !menu.hidden) {
+      if (e.key === 'Escape' && wanted) {
         setMenu(false);
         toggle.focus();
       }
     });
     // A resize past the breakpoint must not leave the page scroll-locked.
     window.matchMedia('(min-width: 861px)').addEventListener('change', (e) => {
-      if (e.matches && !menu.hidden) setMenu(false);
+      if (e.matches && wanted) setMenu(false);
     });
 
     let lastY = window.scrollY;
@@ -265,6 +324,8 @@ function isCurrent(href: string) {
   }
   };
 
-  init();
+  /* Only via the event: ClientRouter fires `astro:page-load` on the first
+     load as well as after each navigation. Calling init() directly too would
+     bind every listener twice, and paired handlers would cancel each other. */
   document.addEventListener('astro:page-load', init);
 </script>

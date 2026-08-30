@@ -140,14 +140,16 @@ const showcase = showcaseSlugs
         {
           process.map((step, i) => (
             <Reveal class="r-30">
-              <details class="step" name="process" open={i === 0}>
+              <details class:list={['step', { 'is-open': i === 0 }]} name="process" open={i === 0}>
                 <summary class="step__summary">
                   <span class="step__index">{String(i + 1).padStart(2, '0')}</span>
                   <span class="step__title">{step.title}</span>
                   <span class="step__icon" aria-hidden="true" />
                 </summary>
                 <div class="step__panel">
-                  <p class="lead">{step.body}</p>
+                  <div class="step__inner">
+                    <p class="lead">{step.body}</p>
+                  </div>
                 </div>
               </details>
             </Reveal>
@@ -458,16 +460,32 @@ const showcase = showcaseSlugs
     transition: transform 0.4s var(--ease);
   }
   .step__icon::after { transform: rotate(90deg); }
-  .step[open] .step__icon::after { transform: rotate(0deg); }
+  .step.is-open .step__icon::after { transform: rotate(0deg); }
 
+  /* `grid-template-rows: 0fr -> 1fr` tweens to the content's own height with
+     no measuring, which a paused compositor cannot get wrong. */
   .step__panel {
-    padding-bottom: clamp(1.25rem, 2.5vw, 1.85rem);
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s var(--spring-smooth);
+  }
+
+  .step.is-open .step__panel { grid-template-rows: 1fr; }
+
+  .step__inner {
+    overflow: hidden;
     padding-left: calc(2ch + clamp(1rem, 3vw, 2.5rem));
     max-width: 68ch;
   }
 
-  @media (max-width: 560px) {
-    .step__panel { padding-left: 0; }
+  .step__inner > p { padding-bottom: clamp(1.25rem, 2.5vw, 1.85rem); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step__panel { transition: none; }
+  }
+
+  @media (max-width: 809.98px) {
+    .step__inner { padding-left: 0; }
   }
 
   /* --- Showcase slider --------------------------------------------------- */
@@ -490,7 +508,7 @@ const showcase = showcaseSlugs
     inset: 0;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.9s var(--spring-smooth);
+    transition: opacity 0.6s var(--spring-smooth);
   }
 
   .slide[data-active] {
@@ -563,6 +581,47 @@ const showcase = showcaseSlugs
   });
 
   const init = () => {
+  /* --- Process accordion --------------------------------------------------
+     <details> drops its content the instant `open` goes away, so the element
+     is kept open until the closing tween has run. ------------------------- */
+  const steps = [...document.querySelectorAll<HTMLDetailsElement>('.step')];
+  const CLOSE_MS = 520;
+  const closeTimers = new WeakMap<HTMLDetailsElement, number>();
+
+  const openStep = (step: HTMLDetailsElement) => {
+    const pending = closeTimers.get(step);
+    if (pending) { clearTimeout(pending); closeTimers.delete(step); }
+    step.open = true;
+    const grow = () => step.classList.add('is-open');
+    requestAnimationFrame(() => requestAnimationFrame(grow));
+    window.setTimeout(grow, 60);
+  };
+
+  const closeStep = (step: HTMLDetailsElement) => {
+    step.classList.remove('is-open');
+    closeTimers.set(
+      step,
+      window.setTimeout(() => {
+        step.open = false;
+        closeTimers.delete(step);
+      }, CLOSE_MS)
+    );
+  };
+
+  steps.forEach((step) => {
+    if (step.open) step.classList.add('is-open');
+    step.querySelector('.step__summary')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (step.classList.contains('is-open')) {
+        closeStep(step);
+        return;
+      }
+      // Exclusive, like the original.
+      steps.forEach((other) => other !== step && other.classList.contains('is-open') && closeStep(other));
+      openStep(step);
+    });
+  });
+
   /* --- Expertises rail: wheel + arrow navigation --------------------------- */
   const rail = document.querySelector<HTMLElement>('[data-rail]');
   const prev = document.querySelector<HTMLButtonElement>('[data-rail-prev]');
@@ -612,7 +671,7 @@ const showcase = showcaseSlugs
   if (slider) {
     const slides = [...slider.querySelectorAll<HTMLElement>('[data-slide]')];
     const dots = [...slider.querySelectorAll<HTMLButtonElement>('[data-slider-dot]')];
-    const INTERVAL = 5000;
+    const INTERVAL = 3000;
     let index = 0;
 
     const go = (i: number) => {
@@ -652,6 +711,8 @@ const showcase = showcaseSlugs
   }
   };
 
-  init();
+  /* Only via the event: ClientRouter fires `astro:page-load` on the first
+     load as well as after each navigation. Calling init() directly too would
+     bind every listener twice, and paired handlers would cancel each other. */
   document.addEventListener('astro:page-load', init);
 </script>

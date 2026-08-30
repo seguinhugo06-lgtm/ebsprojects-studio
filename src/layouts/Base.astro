@@ -200,8 +200,9 @@ const jsonLd = {
       }
       };
 
-      init();
-      // ClientRouter swaps the DOM without reloading, so re-bind each time.
+      /* Only via the event: ClientRouter fires `astro:page-load` on the first
+         load as well as after each navigation, so calling init() directly too
+         would bind every listener twice. */
       document.addEventListener('astro:page-load', init);
     </script>
   </body>
